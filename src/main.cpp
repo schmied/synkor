@@ -1,24 +1,29 @@
 
 #include <iostream>
 
-#include <boost/filesystem.hpp>
+#include <boost/log/trivial.hpp>
 
 #include <sodium.h>
 
-using namespace std;
+#include "config.hpp"
 
-int main()
+int main(int argc, char **argv)
 {
+	if (argc != 2) {
+		BOOST_LOG_TRIVIAL(error) << "Usage: synkor <directory>";
+		return 1;
+	}
 
-    std::cout << "Hello World!!!!\n";
+	if (sodium_init() != 0) {
+		BOOST_LOG_TRIVIAL(error) << "Error: sodium_init()";
+		return 1;
+	}
+	BOOST_LOG_TRIVIAL(info) << "libsodium initialized.";
 
-    boost::filesystem::path p("C:/");
-
-    if (sodium_init() < 0) {
-        return 1;
-    }
-
-    std::cout << "Hello World2!!!!\n";
-
-    std::cout << "Hello World!\n" << boost::filesystem::basename(p);
+	std::string error;
+	config config(argv[1], error);
+	if (!error.empty()) {
+		BOOST_LOG_TRIVIAL(error) << error;
+		return 1;
+	}
 }
