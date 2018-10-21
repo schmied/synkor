@@ -14,4 +14,5 @@ private:
 public:
 	config(char*, std::string&);
 
+	const int get_listen_port() const;
 };

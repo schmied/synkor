@@ -1,10 +1,12 @@
 
-#include <boost/log/trivial.hpp>
+//#include <boost/log/trivial.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
 #include <sodium.h>
 
+#include "../contrib/spdlog/spdlog.h"
+#include "../contrib/spdlog/sinks/stdout_sinks.h"
 #include "../contrib/json11/json11.hpp"
 
 #include "config.hpp"
@@ -17,6 +19,8 @@ const char *FILE_KEY_PUBLIC = "key_public";
 
 const char *KEY_NAME = "name";
 const char *KEY_LISTEN_PORT = "listen_port";
+
+const auto console = spdlog::stdout_logger_st("config");
 
 config::config(char *directory, std::string &error) {
 
@@ -39,7 +43,8 @@ config::config(char *directory, std::string &error) {
 		error.assign("canonical() error code " + ec.value());
 		return;
 	}
-	BOOST_LOG_TRIVIAL(info) << "Base directory: " << dir_base.string();
+//	BOOST_LOG_TRIVIAL(info) << "Base directory: " << dir_base.string();
+	console->info("Base directory: {}", dir_base.string());
 
 	const fs::path file_nonc(dir_base.string() + "/" + FILE_CONFIG);
 	if (!fs::is_regular_file(file_nonc)) {
@@ -52,12 +57,13 @@ config::config(char *directory, std::string &error) {
 		error.assign("canonical() error code " + ec.value());
 		return;
 	}
-	BOOST_LOG_TRIVIAL(info) << "Config file: " << file.string();
+//	BOOST_LOG_TRIVIAL(info) << "Config file: " << file.string();
+	console->info("Config file: {}", file.string());
 
 	std::string config_string;
 	fs::load_string_file(file, config_string);
 	std::string config_error;
-	json11::Json config_json = json11::Json::parse(config_string, config_error);
+	auto config_json = json11::Json::parse(config_string, config_error);
 	if (!config_error.empty()) {
 		error.assign("Error in config file: ");
 		error.append(config_error);
@@ -72,7 +78,8 @@ config::config(char *directory, std::string &error) {
 			error.append(dir_self_nonc.string());
 			return;
 		}
-		BOOST_LOG_TRIVIAL(info) << "Directory created: " << dir_self_nonc.string();
+//		BOOST_LOG_TRIVIAL(info) << "Directory created: " << dir_self_nonc.string();
+		console->info("Directory created: {}", dir_self_nonc.string());
 	}
 	dir_self = fs::canonical(dir_self_nonc, ec);
 	if (ec.value() != boost::system::errc::success) {
@@ -80,11 +87,12 @@ config::config(char *directory, std::string &error) {
 		error.append(" on directory " + dir_self.string());
 		return;
 	}
-	BOOST_LOG_TRIVIAL(info) << "Self Directory: " << dir_self.string();
+//	BOOST_LOG_TRIVIAL(info) << "Self Directory: " << dir_self.string();
+	console->info("Self Directory: {}", dir_self.string());
 
 	const fs::path file_key_private(dir_base.string() + "/" + FILE_KEY_PRIVATE);
 	if (!fs::exists(file_key_private)) {
-		BOOST_LOG_TRIVIAL(info) << "No private key found, generate key pair.";
+//		BOOST_LOG_TRIVIAL(info) << "No private key found, generate key pair.";
 		unsigned char key_public[crypto_box_PUBLICKEYBYTES];
 		unsigned char key_private[crypto_box_SECRETKEYBYTES];
 		crypto_box_keypair(key_public, key_private);
@@ -107,6 +115,12 @@ config::config(char *directory, std::string &error) {
 
 	listen_port = config_json[KEY_LISTEN_PORT].int_value();
 
-	BOOST_LOG_TRIVIAL(info) << KEY_NAME << ": " << name;
-	BOOST_LOG_TRIVIAL(info) << KEY_LISTEN_PORT << ": " << listen_port;
+//	BOOST_LOG_TRIVIAL(info) << KEY_NAME << ": " << name;
+//	BOOST_LOG_TRIVIAL(info) << KEY_LISTEN_PORT << ": " << listen_port;
+	console->info("{}: {}", KEY_NAME, name);
+	console->info("{}: {}", KEY_LISTEN_PORT, listen_port);
+}
+
+const int config::get_listen_port() const {
+	return listen_port;
 }
