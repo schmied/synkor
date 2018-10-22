@@ -22,23 +22,28 @@ const char *KEY_LISTEN_PORT = "listen_port";
 
 const auto console = spdlog::stdout_logger_st("config");
 
-config::config(char *directory, std::string &error) {
+config::config(std::string &error) {
+    config(fs::path("*"), error);
+}
 
-	const fs::path dir_base_nonc(directory);
-	if (!fs::is_directory(dir_base_nonc)) {
-		error.assign("No directory: ");
-		error.append(dir_base_nonc.string());
+config::config(const fs::path dir_base_nonc, std::string &error) {
+
+ //   const fs::path dir_base_nonc(directory);
+//	const fs::path dir_base_nonc(directory);
+    if (!fs::is_directory(dir_base_nonc)) {
+        error.assign("No directory ");
+        error.append(dir_base_nonc.string());
 		return;
 	}
-	if ((fs::status(dir_base_nonc).permissions() & (fs::perms::owner_read | fs::perms::owner_write)) == 0) {
+    if ((fs::status(dir_base_nonc).permissions() & (fs::perms::owner_read | fs::perms::owner_write)) == 0) {
 		error.assign("Not a readable/writable directory: ");
-		error.append(dir_base_nonc.string());
+        error.append(dir_base_nonc.string());
 		return;
 	}
 
 	boost::system::error_code ec;
 
-	dir_base = fs::canonical(dir_base_nonc, ec);
+    dir_base = fs::canonical(dir_base_nonc, ec);
 	if (ec.value() != boost::system::errc::success) {
 		error.assign("canonical() error code " + ec.value());
 		return;
@@ -74,7 +79,7 @@ config::config(char *directory, std::string &error) {
 	const fs::path dir_self_nonc(dir_base.string() + "/" + name);
 	if (!fs::exists(dir_self_nonc)) {
 		if (!fs::create_directory(dir_self_nonc)) {
-			error.assign("Cannot create directory: ");
+            error.assign("Cannot create directory ");
 			error.append(dir_self_nonc.string());
 			return;
 		}
@@ -111,7 +116,8 @@ config::config(char *directory, std::string &error) {
 		ofs_public.open(file_key_public.c_str(), std::ios::out | std::ios::binary);
 		ofs_public.write((const char*) key_public, crypto_box_PUBLICKEYBYTES);
 		ofs_public.close();
-	}
+        console->info("Generate key pair.");
+    }
 
 	listen_port = config_json[KEY_LISTEN_PORT].int_value();
 

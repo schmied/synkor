@@ -2,17 +2,20 @@
 
 #include <boost/filesystem.hpp>
 
+namespace fs = boost::filesystem;
+
 class config {
 
 private:
-	boost::filesystem::path file;
-	boost::filesystem::path dir_base;
-	boost::filesystem::path dir_self;
+    fs::path file;
+    fs::path dir_base;
+    fs::path dir_self;
 	std::string name;
 	int listen_port;
 
 public:
-	config(char*, std::string&);
+    config(std::string&);
+    config(fs::path, std::string&);
 
 	const int get_listen_port() const;
 };

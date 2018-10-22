@@ -11,6 +11,8 @@
 
 #include "config.hpp"
 
+namespace fs = boost::filesystem;
+
 const int max_length = 1024;
 
 namespace asio = boost::asio;
@@ -37,12 +39,12 @@ void session(asio::ip::tcp::socket socket) {
 
 int main(int argc, char **argv)
 {
-	if (argc != 2) {
+
+    if (argc > 2) {
 //		BOOST_LOG_TRIVIAL(error) << "Usage: synkor <directory>";
-		console->info("Usage: synkor <directory>");
+        console->info("Usage: synkor [directory]");
 		return 1;
 	}
-
 	const int error_sodium = sodium_init();
 	if (error_sodium != 0) {
 //		BOOST_LOG_TRIVIAL(error) << "Error: sodium_init()";
@@ -51,8 +53,9 @@ int main(int argc, char **argv)
 	}
 //	BOOST_LOG_TRIVIAL(info) << "libsodium initialized.";
 
+//    fs::path path = argc == 1 ? fs::path("*") : fs::path(argv[1]);
 	std::string error_config;
-	config config(argv[1], error_config);
+    config config(argc == 1 ? fs::path(".") : fs::path(argv[1]), error_config);
 	if (!error_config.empty()) {
 //		BOOST_LOG_TRIVIAL(error) << error;
 		console->info(error_config);
