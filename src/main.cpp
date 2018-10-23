@@ -1,75 +1,44 @@
 
 #include <iostream>
 
-#include <boost/asio.hpp>
-//#include <boost/log/trivial.hpp>
-
 #include <sodium.h>
 
 #include "../contrib/spdlog/spdlog.h"
 #include "../contrib/spdlog/sinks/stdout_sinks.h"
 
 #include "config.hpp"
+#include "server.hpp"
 
 namespace fs = boost::filesystem;
 
-const int max_length = 1024;
+const auto log_main = spdlog::stdout_logger_st("main");
 
-namespace asio = boost::asio;
-
-const auto console = spdlog::stdout_logger_st("main");
-
-void session(asio::ip::tcp::socket socket) {
-	for (;;)
-	{
-		char data[max_length];
-
-		boost::system::error_code error;
-		size_t length = socket.read_some(boost::asio::buffer(data), error);
-		if (error == boost::asio::error::eof)
-			break; // Connection closed cleanly by peer.
-		else if (error)
-			throw boost::system::system_error(error); // Some other error.
-
-		console->info("data");
-//		boost::asio::write(sock, boost::asio::buffer(data, length));
-	}
-	console->info("session closed");
+static void usage() {
+	log_main->info("\n\n Usage: synkor [<directory> [<nodename>]]\n\n To initialize the current directory type: ./synkor . my_nodename\n");
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
-    if (argc > 2) {
-//		BOOST_LOG_TRIVIAL(error) << "Usage: synkor <directory>";
-        console->info("Usage: synkor [directory]");
+    if (argc > 3) {
+		usage();
 		return 1;
 	}
+
 	const int error_sodium = sodium_init();
 	if (error_sodium != 0) {
-//		BOOST_LOG_TRIVIAL(error) << "Error: sodium_init()";
-		console->info("sodium_init() error: {}", error_sodium);
+		log_main->error("sodium_init() error: {}", error_sodium);
 		return 1;
 	}
-//	BOOST_LOG_TRIVIAL(info) << "libsodium initialized.";
+	log_main->info("Initialize libsodium.");
 
-//    fs::path path = argc == 1 ? fs::path("*") : fs::path(argv[1]);
-	std::string error_config;
-    config config(argc == 1 ? fs::path(".") : fs::path(argv[1]), error_config);
-	if (!error_config.empty()) {
-//		BOOST_LOG_TRIVIAL(error) << error;
-		console->info(error_config);
+	const std::string arg_dir_base = argc == 1 ? "." : argv[1];
+	const std::string arg_nodename = argc < 3 ? "" : argv[2];
+	std::string error;
+	config config(arg_dir_base, arg_nodename, error);
+	if (!error.empty()) {
+		log_main->error(error);
+		usage();
 		return 1;
 	}
-
-	boost::asio::io_context asio;
-
-	if (config.get_listen_port() > 0) {
-		asio::ip::tcp::acceptor acceptor(asio, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config.get_listen_port()));
-		for (;;) {
-			console->info("iter");
-			asio::ip::tcp::socket socket(asio);
-			std::thread(session, acceptor.accept()).detach();
-		}
-	}
+	server::start(&config);
 }

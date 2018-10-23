@@ -1,5 +1,4 @@
 
-//#include <boost/log/trivial.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -13,120 +12,204 @@
 
 namespace fs = boost::filesystem;
 
-const char *FILE_CONFIG = "synkor.conf";
-const char *FILE_KEY_PRIVATE = "key_private";
-const char *FILE_KEY_PUBLIC = "key_public";
+const auto log_config = spdlog::stdout_logger_st("config");
 
-const char *KEY_NAME = "name";
-const char *KEY_LISTEN_PORT = "listen_port";
+const fs::path FILE_CONFIG("synkor.conf");
+const fs::path FILE_KEY_PRIVATE("key_private");
+const fs::path FILE_KEY_PUBLIC("key_public");
 
-const auto console = spdlog::stdout_logger_st("config");
+const std::string JSON_KEY_NODENAME("nodename");
+const std::string JSON_KEY_LISTEN_PORT("listen_port");
 
-config::config(std::string &error) {
-    config(fs::path("*"), error);
+const fs::path config::check_path_canonical(const fs::path path, std::string &error) {
+	error.clear();
+	boost::system::error_code ec;
+	fs::path pathc = fs::canonical(path, ec);
+	if (ec.value() != boost::system::errc::success) {
+		error.assign("canonical() error code " + ec.value());
+		return path;
+	}
+	return pathc;
 }
 
-config::config(const fs::path dir_base_nonc, std::string &error) {
+const fs::path config::check_file_readable(const fs::path path, std::string &error) {
+	error.clear();
+	if (!fs::is_regular_file(path)) {
+		error.assign("No file " + path.string());
+		return path;
+	}
+	if ((fs::status(path).permissions() & fs::perms::owner_read) == 0) {
+		error.assign("Not a readable file: " + path.string());
+		return path;
+	}
+	return check_path_canonical(path, error);
+}
 
- //   const fs::path dir_base_nonc(directory);
-//	const fs::path dir_base_nonc(directory);
-    if (!fs::is_directory(dir_base_nonc)) {
-        error.assign("No directory ");
-        error.append(dir_base_nonc.string());
+const fs::path config::check_dir_writable(const fs::path path, const bool create, std::string &error) {
+	error.clear();
+	if (!fs::exists(path)) {
+		if (!create) {
+			error.assign("No directory " + path.string());
+			return path;
+		}
+		if (!fs::create_directories(path)) {
+			error.assign("Cannot create directory " + path.string());
+			return path;
+		}
+		log_config->info("Create directory {}", path.string());
+	}
+	if (!fs::is_directory(path)) {
+		error.assign("No directory " + path.string());
+		return path;
+	}
+	if ((fs::status(path).permissions() & (fs::perms::owner_read | fs::perms::owner_write)) == 0) {
+		error.assign("Not a readable/writable directory: " + path.string());
+		return path;
+	}
+	return check_path_canonical(path, error);
+}
+
+const fs::path config::check_file_config(const fs::path dir_base, std::string &error) {
+	return check_file_readable(fs::path(dir_base.string() + "/" + FILE_CONFIG.string()), error);
+}
+
+const fs::path config::check_file_config(const std::string dir_base, std::string &error) {
+	return check_file_config(fs::path(dir_base), error);
+}
+
+const fs::path config::check_file_key_private(const fs::path dir_base, std::string &error) {
+	return check_file_readable(fs::path(dir_base.string() + "/" + FILE_KEY_PRIVATE.string()), error);
+}
+
+const fs::path config::check_file_key_private(const std::string dir_base, std::string &error) {
+	return check_file_key_private(fs::path(dir_base), error);
+}
+
+const fs::path config::check_file_key_public(const fs::path path, const std::string nodename, std::string &error) {
+	return check_file_readable(fs::path(path.string() + "/" + nodename + "/" + FILE_KEY_PUBLIC.string()), error);
+}
+
+const fs::path config::check_file_key_public(const std::string dir_base, const std::string nodename, std::string &error) {
+	return check_file_key_public(fs::path(dir_base), nodename, error);
+}
+
+const fs::path config::check_dir_base(const fs::path dir_base, std::string &error) {
+	return check_dir_writable(dir_base, false, error);
+}
+
+const fs::path config::check_dir_base(const std::string dir_base, std::string &error) {
+	return check_dir_base(fs::path(dir_base), error);
+}
+
+const fs::path config::check_dir_self(const fs::path dir_base, const std::string nodename, std::string &error) {
+	return check_dir_writable(fs::path(dir_base.string() + "/" + nodename), true, error);
+}
+
+const fs::path config::check_dir_self(const std::string dir_base, const std::string nodename, std::string &error) {
+	return check_dir_self(fs::path(dir_base), nodename, error);
+}
+
+json11::Json config::parse(const fs::path dir_base, std::string &error) {
+	error.clear();
+	fs::path file_config = check_file_config(dir_base, error);
+	if (!error.empty())
+		return json11::Json();
+	std::string config;
+	fs::load_string_file(file_config, config);
+	return json11::Json::parse(config, error);
+}
+
+config::config(const std::string dir_base, const std::string nodename, std::string &error) {
+
+	_dir_base = check_dir_base(dir_base, error);
+	bool is_dir_base = fs::is_directory(_dir_base);
+	if (!is_dir_base && nodename.empty()) {
+		error.assign("No directory " + _dir_base.string());
 		return;
 	}
-    if ((fs::status(dir_base_nonc).permissions() & (fs::perms::owner_read | fs::perms::owner_write)) == 0) {
-		error.assign("Not a readable/writable directory: ");
-        error.append(dir_base_nonc.string());
+	log_config->info("Base directory: {}", _dir_base.string());
+
+	const fs::path file_config = check_file_config(_dir_base, error);
+	bool is_file_config = fs::is_regular_file(file_config);
+	if (!is_file_config && nodename.empty()) {
+		error.assign("No config file " + file_config.string());
 		return;
 	}
-
-	boost::system::error_code ec;
-
-    dir_base = fs::canonical(dir_base_nonc, ec);
-	if (ec.value() != boost::system::errc::success) {
-		error.assign("canonical() error code " + ec.value());
-		return;
-	}
-//	BOOST_LOG_TRIVIAL(info) << "Base directory: " << dir_base.string();
-	console->info("Base directory: {}", dir_base.string());
-
-	const fs::path file_nonc(dir_base.string() + "/" + FILE_CONFIG);
-	if (!fs::is_regular_file(file_nonc)) {
-		error.assign("No config file: ");
-		error.append(file_nonc.string());
-		return;
-	}
-	file = fs::canonical(file_nonc, ec);
-	if (ec.value() != boost::system::errc::success) {
-		error.assign("canonical() error code " + ec.value());
-		return;
-	}
-//	BOOST_LOG_TRIVIAL(info) << "Config file: " << file.string();
-	console->info("Config file: {}", file.string());
-
-	std::string config_string;
-	fs::load_string_file(file, config_string);
-	std::string config_error;
-	auto config_json = json11::Json::parse(config_string, config_error);
-	if (!config_error.empty()) {
-		error.assign("Error in config file: ");
-		error.append(config_error);
-		return;
-	}
-	name = config_json[KEY_NAME].string_value();
-
-	const fs::path dir_self_nonc(dir_base.string() + "/" + name);
-	if (!fs::exists(dir_self_nonc)) {
-		if (!fs::create_directory(dir_self_nonc)) {
-            error.assign("Cannot create directory ");
-			error.append(dir_self_nonc.string());
+	if (is_file_config) {
+		if (!nodename.empty()) {
+			error.assign("Cannot initialize node '" + nodename + "', config file already exists in base directory " + _dir_base.string());
 			return;
 		}
-//		BOOST_LOG_TRIVIAL(info) << "Directory created: " << dir_self_nonc.string();
-		console->info("Directory created: {}", dir_self_nonc.string());
+		log_config->info("Config file: {}", file_config.string());
+		auto config_json = parse(_dir_base, error);
+		if (!error.empty())
+			return;
+		_nodename = config_json[JSON_KEY_NODENAME].string_value();
+		if (_nodename.empty()) {
+			error.assign("No json key '" + JSON_KEY_NODENAME + "' defined in config file.");
+			return;
+		}
+	} else {
+		_nodename = nodename;
 	}
-	dir_self = fs::canonical(dir_self_nonc, ec);
-	if (ec.value() != boost::system::errc::success) {
-		error.assign("canonical() error code " + ec.value());
-		error.append(" on directory " + dir_self.string());
+	log_config->info("Nodename: {}", _nodename);
+
+	const fs::path file_key_private = check_file_key_private(_dir_base, error);
+	bool is_file_key_private = fs::is_regular_file(file_key_private);
+	if ((is_file_config && !is_file_key_private) || (!is_file_config && is_file_key_private)) {
+		error.assign("No valid integrity in base directory.");
 		return;
 	}
-//	BOOST_LOG_TRIVIAL(info) << "Self Directory: " << dir_self.string();
-	console->info("Self Directory: {}", dir_self.string());
+	if (is_file_key_private)
+		log_config->info("Private key: {}", file_key_private.string());
 
-	const fs::path file_key_private(dir_base.string() + "/" + FILE_KEY_PRIVATE);
-	if (!fs::exists(file_key_private)) {
-//		BOOST_LOG_TRIVIAL(info) << "No private key found, generate key pair.";
+	const fs::path file_key_public = config::check_file_key_public(dir_base, _nodename, error);
+	bool is_file_key_public = fs::is_regular_file(file_key_public);
+	if ((is_file_config && !is_file_key_public) || (!is_file_config && is_file_key_public)) {
+		error.assign("No valid integrity in base directory.");
+		return;
+	}
+	if (is_file_key_public)
+		log_config->info("Public key: {}", file_key_public.string());
+
+	const fs::path dir_self = check_dir_self(_dir_base, _nodename, error);
+	if (!error.empty())
+		return;
+
+	if (!is_file_config) {
+
+		check_dir_writable(dir_base, true, error);
+		if (!error.empty()) 
+			return;
+
 		unsigned char key_public[crypto_box_PUBLICKEYBYTES];
 		unsigned char key_private[crypto_box_SECRETKEYBYTES];
 		crypto_box_keypair(key_public, key_private);
-		std::ofstream ofs_private;
-		ofs_private.open(file_key_private.c_str(), std::ios::out | std::ios::binary);
-		ofs_private.write((const char*) key_private, crypto_box_SECRETKEYBYTES);
-		ofs_private.close();
-		fs::path file_key_public(dir_self.string() + "/" + FILE_KEY_PUBLIC);
-		if (fs::exists(file_key_public)) {
-			if (!fs::remove(file_key_public)) {
-				error.assign("Cannot delete public key " + file_key_public.string());
-				return;
-			}
-		}
-		std::ofstream ofs_public;
-		ofs_public.open(file_key_public.c_str(), std::ios::out | std::ios::binary);
-		ofs_public.write((const char*) key_public, crypto_box_PUBLICKEYBYTES);
-		ofs_public.close();
-        console->info("Generate key pair.");
-    }
 
-	listen_port = config_json[KEY_LISTEN_PORT].int_value();
+		std::ofstream ofs_config;
+		ofs_config.open(file_config.c_str(), std::ios::out | std::ios::binary);
+		ofs_config << std::string("{ \"" + JSON_KEY_NODENAME + "\": \"" + _nodename + "\" }");
+		ofs_config.close();
+		log_config->info("Generate config {}", file_config.string());
 
-//	BOOST_LOG_TRIVIAL(info) << KEY_NAME << ": " << name;
-//	BOOST_LOG_TRIVIAL(info) << KEY_LISTEN_PORT << ": " << listen_port;
-	console->info("{}: {}", KEY_NAME, name);
-	console->info("{}: {}", KEY_LISTEN_PORT, listen_port);
+		std::ofstream ofs_key_private;
+		ofs_key_private.open(file_key_private.c_str(), std::ios::out | std::ios::binary);
+		ofs_key_private.write((const char*) key_private, crypto_box_SECRETKEYBYTES);
+		ofs_key_private.close();
+		log_config->info("Generate private key {}", file_key_private.string());
+
+		std::ofstream ofs_key_public;
+		ofs_key_public.open(file_key_public.c_str(), std::ios::out | std::ios::binary);
+		ofs_key_public.write((const char*) key_public, crypto_box_PUBLICKEYBYTES);
+		ofs_key_public.close();
+		log_config->info("Generate public key {}", file_key_public.string());
+	}
+
+	auto config_json = parse(_dir_base, error);
+	_listen_port = config_json[JSON_KEY_LISTEN_PORT].int_value();
+	log_config->info("Listen port: {}", _listen_port);
 }
 
 const int config::get_listen_port() const {
-	return listen_port;
+	return _listen_port;
 }
