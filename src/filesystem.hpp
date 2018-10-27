@@ -16,27 +16,30 @@
 
 #pragma once
 
-#ifndef SYNKOR_SERVER
-#define SYNKOR_SERVER
+#ifndef SYNKOR_FILESYSTEM
+#define SYNKOR_FILESYSTEM
 
-#include "../contrib/asio/asio.hpp"
+#include <filesystem>
 
-#include "config.hpp"
+#include "global.hpp"
+
+#include "../contrib/json11/json11.hpp"
 
 namespace synkor {
-
-class server {
+	
+class filesystem {
 
 private:
-	config *_config;
-	asio::ip::tcp::socket *_socket;
+	static const stdfs::path check_path_canonical(const stdfs::path, std::string&);
 
 public:
-	server(config*, asio::ip::tcp::socket*);
+	static const stdfs::path check_file_readable(const stdfs::path, std::string&);
+	static const stdfs::path check_dir_writable(const stdfs::path, const bool, std::string&);
 
-	asio::ip::tcp::socket *socket() const;
-
-	static void start(config*);
+	static void load_string(const stdfs::path&, std::string&);
+	static json11::Json load_json(const stdfs::path&, std::string&);
+	static void save_string(const stdfs::path&, const std::string&);
+	static void save_json(const stdfs::path&, const json11::Json, const std::string&);
 };
 
 }

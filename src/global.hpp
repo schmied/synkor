@@ -16,29 +16,11 @@
 
 #pragma once
 
-#ifndef SYNKOR_SERVER
-#define SYNKOR_SERVER
+#ifndef SYNKOR_GLOBAL
+#define SYNKOR_GLOBAL
 
-#include "../contrib/asio/asio.hpp"
+#include <filesystem>
 
-#include "config.hpp"
-
-namespace synkor {
-
-class server {
-
-private:
-	config *_config;
-	asio::ip::tcp::socket *_socket;
-
-public:
-	server(config*, asio::ip::tcp::socket*);
-
-	asio::ip::tcp::socket *socket() const;
-
-	static void start(config*);
-};
-
-}
+namespace stdfs = std::filesystem;
 
 #endif
