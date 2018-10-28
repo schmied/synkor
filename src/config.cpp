@@ -29,7 +29,7 @@
 const auto log_config = spdlog::stdout_logger_st("config");
 
 const stdfs::path FILE_CONFIG("synkor.conf");
-const stdfs::path FILE_KEY_PRIVATE("key_private.txt");
+const stdfs::path FILE_KEY_PRIVATE("key_private");
 const stdfs::path FILE_KEY_PUBLIC("key_public.txt");
 
 const std::string JSON_KEY_NODENAME("nodename");

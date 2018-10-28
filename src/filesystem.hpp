@@ -30,13 +30,13 @@ namespace synkor {
 class filesystem {
 
 private:
-	static const stdfs::path check_path_canonical(const stdfs::path, std::string&);
+	static const stdfs::path check_path_canonical(const stdfs::path&, std::string&);
 
 public:
-	static const stdfs::path check_file_readable(const stdfs::path, std::string&);
-	static const stdfs::path check_dir_writable(const stdfs::path, const bool, std::string&);
+	static const stdfs::path check_file_readable(const stdfs::path&, std::string&);
+	static const stdfs::path check_dir_writable(const stdfs::path&, const bool, std::string&);
 
-	static void load_string(const stdfs::path&, std::string&);
+	static std::string load_string(const stdfs::path&, std::string&);
 	static json11::Json load_json(const stdfs::path&, std::string&);
 	static void save_string(const stdfs::path&, const std::string&);
 	static void save_json(const stdfs::path&, const json11::Json);
