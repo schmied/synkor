@@ -14,17 +14,11 @@
  * THIS SOFTWARE.
  */
 
-//#include <boost/asio.hpp>
-//#include "../contrib/asio/buffer.hpp"
-//#include "../contrib/asio/ip/tcp.hpp"
-
 #include "../contrib/asio/asio.hpp"
 #include "../contrib/spdlog/spdlog.h"
 #include "../contrib/spdlog/sinks/stdout_sinks.h"
 
 #include "server.hpp"
-
-//namespace asio = boost::asio;
 
 const auto log_server = spdlog::stdout_logger_st("server");
 
