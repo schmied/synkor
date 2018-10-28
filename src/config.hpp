@@ -48,7 +48,7 @@ private:
 	static const stdfs::path check_file_key_public(const std::string, const std::string, std::string&);
 
 public:
-    config(const std::string, const std::string, std::string&);
+	config(const std::string, const std::string, std::string&);
 
 	const int get_listen_port() const;
 };

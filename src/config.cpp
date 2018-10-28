@@ -142,7 +142,7 @@ synkor::config::config(const std::string dir_base, const std::string nodename, s
 	if (!is_file_config) {
 
 		filesystem::check_dir_writable(_dir_base, true, error);
-		if (!error.empty()) 
+		if (!error.empty())
 			return;
 
 //		json11::Json json_config = json11::Json::object { JSON_KEY_NODENAME, _nodename}; //"{ \"" + JSON_KEY_NODENAME + "\": \"" + _nodename + "\" }";

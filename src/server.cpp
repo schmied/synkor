@@ -101,7 +101,7 @@ void synkor::server::start(config *config) {
 
 	if (config == nullptr || config->get_listen_port() <= 0)
 		return;
-	
+
 	asio::io_context asio;
 //	for (;;) {
 		asio::ip::tcp::acceptor acceptor(asio, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config->get_listen_port()));

@@ -31,7 +31,7 @@ static void usage() {
 
 int main(int argc, char **argv) {
 
-    if (argc > 3) {
+	if (argc > 3) {
 		usage();
 		return 1;
 	}
