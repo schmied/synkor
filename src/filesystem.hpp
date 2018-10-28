@@ -39,7 +39,7 @@ public:
 	static void load_string(const stdfs::path&, std::string&);
 	static json11::Json load_json(const stdfs::path&, std::string&);
 	static void save_string(const stdfs::path&, const std::string&);
-	static void save_json(const stdfs::path&, const json11::Json, const std::string&);
+	static void save_json(const stdfs::path&, const json11::Json);
 };
 
 }

@@ -36,9 +36,6 @@ private:
 
 	static json11::Json load(const stdfs::path, std::string&);
 
-public:
-    config(const std::string, const std::string, std::string&);
-
 	static const stdfs::path check_dir_base(const stdfs::path, std::string&);
 	static const stdfs::path check_dir_base(const std::string, std::string&);
 	static const stdfs::path check_dir_self(const stdfs::path, const std::string, std::string&);
@@ -49,6 +46,9 @@ public:
 	static const stdfs::path check_file_key_private(const std::string, std::string&);
 	static const stdfs::path check_file_key_public(const stdfs::path, const std::string, std::string&);
 	static const stdfs::path check_file_key_public(const std::string, const std::string, std::string&);
+
+public:
+    config(const std::string, const std::string, std::string&);
 
 	const int get_listen_port() const;
 };

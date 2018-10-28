@@ -16,8 +16,6 @@
 
 #include <filesystem>
 
-//#include <sodium.h>
-
 #include "../contrib/json11/json11.hpp"
 #include "../contrib/sodium/sodium.h"
 #include "../contrib/spdlog/spdlog.h"
@@ -81,7 +79,7 @@ json11::Json synkor::config::load(const stdfs::path dir_base, std::string &error
 	stdfs::path file_config = check_file_config(dir_base, error);
 	if (!error.empty())
 		return json11::Json();
-	return filesystem::load_json(dir_base, error);
+	return filesystem::load_json(file_config, error);
 }
 
 synkor::config::config(const std::string dir_base, const std::string nodename, std::string &error) {
@@ -128,7 +126,7 @@ synkor::config::config(const std::string dir_base, const std::string nodename, s
 	if (is_file_key_private)
 		log_config->info("Private key: {}", file_key_private.string());
 
-	const stdfs::path file_key_public = config::check_file_key_public(dir_base, _nodename, error);
+	const stdfs::path file_key_public = config::check_file_key_public(_dir_base, _nodename, error);
 	bool is_file_key_public = stdfs::is_regular_file(file_key_public);
 	if ((is_file_config && !is_file_key_public) || (!is_file_config && is_file_key_public)) {
 		error.assign("No valid integrity in base directory.");
@@ -143,32 +141,34 @@ synkor::config::config(const std::string dir_base, const std::string nodename, s
 
 	if (!is_file_config) {
 
-		filesystem::check_dir_writable(dir_base, true, error);
+		filesystem::check_dir_writable(_dir_base, true, error);
 		if (!error.empty()) 
 			return;
+
+//		json11::Json json_config = json11::Json::object { JSON_KEY_NODENAME, _nodename}; //"{ \"" + JSON_KEY_NODENAME + "\": \"" + _nodename + "\" }";
+//		filesystem::save_string(file_config, json_config.dump());
+		filesystem::save_string(file_config, "{ \"" + JSON_KEY_NODENAME + "\": \"" + _nodename + "\" }");
+		log_config->info("Write config {}", file_config.string());
 
 		unsigned char key_private[crypto_box_SECRETKEYBYTES];
 		unsigned char key_public[crypto_box_PUBLICKEYBYTES];
 		crypto_box_keypair(key_public, key_private);
+		log_config->info("Generate key pair.");
 
-		std::string str_config = "{ \"" + JSON_KEY_NODENAME + "\": \"" + _nodename + "\" }";
-		filesystem::save_string(file_config, str_config);
-		log_config->info("Generate config {}", file_config.string());
-
-		const int str_key_hex_len = 10000;
+		const int str_key_hex_len = 1000;
 		char str_key_hex[str_key_hex_len];
 		sodium_bin2hex(str_key_hex, str_key_hex_len, key_private, crypto_box_SECRETKEYBYTES);
 		filesystem::save_string(file_key_private, str_key_hex);
-		log_config->info("Generate private key {}", file_key_private.string());
+		log_config->info("Write private key {}", file_key_private.string());
 		sodium_bin2hex(str_key_hex, str_key_hex_len, key_public, crypto_box_PUBLICKEYBYTES);
 		filesystem::save_string(file_key_public, str_key_hex);
-		log_config->info("Generate public key {}", file_key_public.string());
-
+		log_config->info("Write public key {}", file_key_public.string());
 	}
 
-	auto config_json = filesystem::load_json(_dir_base, error);
+	auto config_json = load(_dir_base, error);
 	if (!error.empty())
 		return;
+	log_config->info("Load config {}", file_config.string());
 	_listen_port = config_json[JSON_KEY_LISTEN_PORT].int_value();
 	log_config->info("Listen port: {}", _listen_port);
 }
