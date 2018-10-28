@@ -35,7 +35,7 @@ const stdfs::path synkor::filesystem::check_path_canonical(const stdfs::path &pa
 	std::error_code ec;
 	stdfs::path pathc = stdfs::canonical(path_norm, ec);
 	if (ec.value()) {
-		error.assign("canonical() error code " + ec.value());
+		error.assign("canonical() error code " + std::to_string(ec.value()));
 		return path_norm;
 	}
 	return pathc.lexically_normal();
@@ -94,9 +94,9 @@ std::string synkor::filesystem::load_string(const stdfs::path &path, std::string
 	while (ifs) {
 		asio::mutable_buffer in = sb.prepare(buf_len);
 		ifs.read((char*)in.data(), buf_len);
-		sb.commit(ifs.gcount());
+		sb.commit((size_t) ifs.gcount());
 		asio::const_buffer out = sb.data();
-		s.append((char*) out.data());
+		s.append((const char*) out.data());
 		sb.consume(out.size());
 	}
 	if (ifs.is_open())
@@ -119,7 +119,7 @@ json11::Json synkor::filesystem::load_json(const stdfs::path& path, std::string&
 
 void synkor::filesystem::save_string(const stdfs::path &path, const std::string& s) {
 	std::ofstream ofs{ path, std::ios_base::binary | std::ios_base::out };
-	ofs.write(s.c_str(), s.size());
+	ofs.write(s.c_str(), (std::streamsize) s.size());
 	ofs.close();
 }
 
