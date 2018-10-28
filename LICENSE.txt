@@ -1,4 +1,6 @@
 
+ISC License
+
 Copyright 2018 Michael Schmiedgen
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
