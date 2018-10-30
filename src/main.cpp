@@ -53,13 +53,13 @@ int main(int argc, char **argv) {
 	}
 	log_main->info("initialize libsodium");
 
-	const stdfs::path arg_dir_base = argc == 1 ? "." : argv[1];
+	const stdfs::path arg_dir_base {argc == 1 ? "." : argv[1]};
 	std::string arg_peername;
 	if (argc == 3)
 		arg_peername.assign(argv[2]);
 
 	try {
-		synkor::config config { arg_dir_base, arg_peername };
+		synkor::config config {arg_dir_base, arg_peername};
 		synkor::server::start(&config);
 	} catch (const std::exception& e) {
 		log_exception(e);

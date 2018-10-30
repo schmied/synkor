@@ -33,7 +33,7 @@ const stdfs::path synkor::filesystem::canonical(const stdfs::path &path) {
 	try {
 		return stdfs::canonical(path).lexically_normal();
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+		std::throw_with_nested(std::runtime_error {__func__ + std::string("() path: " + path.string())});
 	}
 }
 
@@ -45,7 +45,7 @@ const bool synkor::filesystem::is_file_readable(const stdfs::path &path) {
 			return false;
 		return true;
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+		std::throw_with_nested(std::runtime_error {__func__ + std::string("() path: " + path.string())});
 	}
 }
 
@@ -55,16 +55,16 @@ const bool synkor::filesystem::is_dir_writable(const stdfs::path &path, const bo
 			if (!create)
 				return false;
 			if (!stdfs::create_directories(path))
-				throw std::runtime_error(__func__ + std::string("() cannot create directory: " + path.string()));
-			log_filesystem->info("Create directory {}", path.string());
+				throw std::runtime_error {__func__ + std::string("() cannot create directory: " + path.string())};
+			log_filesystem->info("create directory {}", path.string());
 		}
 		if (!stdfs::is_directory(path))
-			throw std::runtime_error(__func__ + std::string("() no directory: " + path.string()));
+			throw std::runtime_error{ __func__ + std::string("() no directory: " + path.string()) };
 		if ((stdfs::status(path).permissions() & (stdfs::perms::owner_read | stdfs::perms::owner_write)) == stdfs::perms::none)
 			return false;
 		return true;
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+		std::throw_with_nested(std::runtime_error {__func__ + std::string("() path: " + path.string())});
 	}
 }
 
@@ -72,7 +72,7 @@ std::string synkor::filesystem::load_string(const stdfs::path &path) {
 	try {
 		std::string s;
 		if (!is_file_readable(path))
-			throw std::runtime_error(__func__ + std::string("() no file: " + path.string()));
+			throw std::runtime_error {__func__ + std::string("() no file: " + path.string())};
 		std::ifstream ifs { path, std::ios_base::binary | std::ios_base::in };
 		asio::streambuf sb;
 		const size_t buf_len = 1024;
@@ -88,7 +88,7 @@ std::string synkor::filesystem::load_string(const stdfs::path &path) {
 			ifs.close();
 		return s;
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+		std::throw_with_nested(std::runtime_error {__func__ + std::string("() path: " + path.string())});
 	}
 }
 
@@ -98,10 +98,10 @@ json11::Json synkor::filesystem::load_json(const stdfs::path& path) {
 		std::string error;
 		json11::Json json = json11::Json::parse(s, error);
 		if (!error.empty())
-			throw std::runtime_error(__func__ + std::string("() parse error: " + error));
+			throw std::runtime_error {__func__ + std::string("() parse error: " + error)};
 		return json;
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+		std::throw_with_nested(std::runtime_error {__func__ + std::string("() path: " + path.string())});
 	}
 }
 
@@ -111,7 +111,7 @@ void synkor::filesystem::save_string(const stdfs::path &path, const std::string&
 		ofs.write(s.c_str(), (std::streamsize) s.size());
 		ofs.close();
 	} catch (...) {
-		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+		std::throw_with_nested(std::runtime_error {__func__ + std::string("() path: " + path.string())});
 	}
 }
 
