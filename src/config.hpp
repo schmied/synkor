@@ -31,24 +31,16 @@ class config {
 
 private:
 	stdfs::path _dir_base;
-	std::string _nodename;
+	std::string _peername;
 	int _listen_port;
 
-	static json11::Json load(const stdfs::path, std::string&);
-
-	static const stdfs::path check_dir_base(const stdfs::path, std::string&);
-	static const stdfs::path check_dir_base(const std::string, std::string&);
-	static const stdfs::path check_dir_self(const stdfs::path, const std::string, std::string&);
-	static const stdfs::path check_dir_self(const std::string, const std::string, std::string&);
-	static const stdfs::path check_file_config(const stdfs::path, std::string&);
-	static const stdfs::path check_file_config(const std::string, std::string&);
-	static const stdfs::path check_file_key_private(const stdfs::path, std::string&);
-	static const stdfs::path check_file_key_private(const std::string, std::string&);
-	static const stdfs::path check_file_key_public(const stdfs::path, const std::string, std::string&);
-	static const stdfs::path check_file_key_public(const std::string, const std::string, std::string&);
+	static const stdfs::path path_dir_self(const stdfs::path&, const std::string&);
+	static const stdfs::path path_file_config(const stdfs::path&);
+	static const stdfs::path path_file_key_private(const stdfs::path&);
+	static const stdfs::path path_file_key_public(const stdfs::path&, const std::string&);
 
 public:
-	config(const std::string, const std::string, std::string&);
+	config(const stdfs::path&, const std::string&);
 
 	const int get_listen_port() const;
 };

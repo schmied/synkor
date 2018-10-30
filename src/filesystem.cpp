@@ -29,98 +29,90 @@
 
 const auto log_filesystem = spdlog::stdout_logger_st("filesystem");
 
-const stdfs::path synkor::filesystem::check_path_canonical(const stdfs::path &path, std::string &error) {
-	error.clear();
-	stdfs::path path_norm = path.lexically_normal();
-	std::error_code ec;
-	stdfs::path pathc = stdfs::canonical(path_norm, ec);
-	if (ec.value()) {
-		error.assign("canonical() error code " + std::to_string(ec.value()));
-		return path_norm;
+const stdfs::path synkor::filesystem::canonical(const stdfs::path &path) {
+	try {
+		return stdfs::canonical(path).lexically_normal();
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
 	}
-	return pathc.lexically_normal();
 }
 
-const stdfs::path synkor::filesystem::check_file_readable(const stdfs::path &path, std::string &error) {
-	error.clear();
-	stdfs::path path_norm = path.lexically_normal();
-	if (!stdfs::is_regular_file(path_norm)) {
-		error.assign("No file " + path_norm.string());
-		return path_norm;
+const bool synkor::filesystem::is_file_readable(const stdfs::path &path) {
+	try {
+		if (!stdfs::is_regular_file(path))
+			return false;
+		if ((stdfs::status(path).permissions() & stdfs::perms::owner_read) == stdfs::perms::none)
+			return false;
+		return true;
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
 	}
-	if ((stdfs::status(path_norm).permissions() & stdfs::perms::owner_read) == stdfs::perms::none) {
-		error.assign("Not a readable file: " + path_norm.string());
-		return path_norm;
-	}
-	return check_path_canonical(path_norm, error);
 }
 
-const stdfs::path synkor::filesystem::check_dir_writable(const stdfs::path &path, const bool create, std::string &error) {
-	error.clear();
-	stdfs::path path_norm = path.lexically_normal();
-	if (!stdfs::exists(path_norm)) {
-		if (!create) {
-			error.assign("No directory " + path_norm.string());
-			return path_norm;
+const bool synkor::filesystem::is_dir_writable(const stdfs::path &path, const bool create) {
+	try {
+		if (!stdfs::exists(path)) {
+			if (!create)
+				return false;
+			if (!stdfs::create_directories(path))
+				throw std::runtime_error(__func__ + std::string("() cannot create directory: " + path.string()));
+			log_filesystem->info("Create directory {}", path.string());
 		}
-		if (!stdfs::create_directories(path_norm)) {
-			error.assign("Cannot create directory " + path_norm.string());
-			return path_norm;
-		}
-		log_filesystem->info("Create directory {}", path_norm.string());
+		if (!stdfs::is_directory(path))
+			throw std::runtime_error(__func__ + std::string("() no directory: " + path.string()));
+		if ((stdfs::status(path).permissions() & (stdfs::perms::owner_read | stdfs::perms::owner_write)) == stdfs::perms::none)
+			return false;
+		return true;
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
 	}
-	if (!stdfs::is_directory(path_norm)) {
-		error.assign("No directory " + path_norm.string());
-		return path_norm;
-	}
-	if ((stdfs::status(path_norm).permissions() & (stdfs::perms::owner_read | stdfs::perms::owner_write)) == stdfs::perms::none) {
-		error.assign("Not a readable/writable directory: " + path_norm.string());
-		return path_norm;
-	}
-	return check_path_canonical(path_norm, error);
 }
 
-std::string synkor::filesystem::load_string(const stdfs::path &path, std::string &error) {
-	error.clear();
-	std::string s;
-	check_file_readable(path, error);
-	if (!error.empty()) {
-		log_filesystem->error(error);
+std::string synkor::filesystem::load_string(const stdfs::path &path) {
+	try {
+		std::string s;
+		if (!is_file_readable(path))
+			throw std::runtime_error(__func__ + std::string("() no file: " + path.string()));
+		std::ifstream ifs { path, std::ios_base::binary | std::ios_base::in };
+		asio::streambuf sb;
+		const size_t buf_len = 1024;
+		while (ifs) {
+			asio::mutable_buffer in = sb.prepare(buf_len);
+			ifs.read((char*)in.data(), buf_len);
+			sb.commit((size_t) ifs.gcount());
+			asio::const_buffer out = sb.data();
+			s.append((const char*) out.data());
+			sb.consume(out.size());
+		}
+		if (ifs.is_open())
+			ifs.close();
 		return s;
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
 	}
-	std::ifstream ifs { path, std::ios_base::binary | std::ios_base::in };
-	asio::streambuf sb;
-	const size_t buf_len = 1024;
-	while (ifs) {
-		asio::mutable_buffer in = sb.prepare(buf_len);
-		ifs.read((char*)in.data(), buf_len);
-		sb.commit((size_t) ifs.gcount());
-		asio::const_buffer out = sb.data();
-		s.append((const char*) out.data());
-		sb.consume(out.size());
-	}
-	if (ifs.is_open())
-		ifs.close();
-	return s;
 }
 
-json11::Json synkor::filesystem::load_json(const stdfs::path& path, std::string& error) {
-	error.clear();
-	std::string s = load_string(path, error);
-	if (!error.empty()) {
-		log_filesystem->error(error);
-		return json11::Json();
+json11::Json synkor::filesystem::load_json(const stdfs::path& path) {
+	try {
+		std::string s = load_string(path);
+		std::string error;
+		json11::Json json = json11::Json::parse(s, error);
+		if (!error.empty())
+			throw std::runtime_error(__func__ + std::string("() parse error: " + error));
+		return json;
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
 	}
-	json11::Json json = json11::Json::parse(s, error);
-	if (!error.empty())
-		error.assign("Cannot parse json from " + path.string() + ": " + error);
-	return json;
 }
 
 void synkor::filesystem::save_string(const stdfs::path &path, const std::string& s) {
-	std::ofstream ofs{ path, std::ios_base::binary | std::ios_base::out };
-	ofs.write(s.c_str(), (std::streamsize) s.size());
-	ofs.close();
+	try {
+		std::ofstream ofs{ path, std::ios_base::binary | std::ios_base::out };
+		ofs.write(s.c_str(), (std::streamsize) s.size());
+		ofs.close();
+	} catch (...) {
+		std::throw_with_nested(std::runtime_error(__func__ + std::string("() path: " + path.string())));
+	}
 }
 
 void synkor::filesystem::save_json(const stdfs::path &path, const json11::Json json) {

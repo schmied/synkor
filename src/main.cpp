@@ -26,7 +26,17 @@
 const auto log_main = spdlog::stdout_logger_st("main");
 
 static void usage() {
-	log_main->info("\n\n Usage: synkor [<directory> [<nodename>]]\n\n To initialize the current directory type: ./synkor . my_nodename\n");
+	log_main->info("\n\n Usage: synkor [<base directory> [<peer name>]]\n\n To initialize the current directory type: ./synkor . my_peer_name\n");
+}
+
+void log_exception(const std::exception& e, int level =  0) {
+	log_main->info("[exception] {}{}", std::string(level, ' '), e.what());
+	try {
+		std::rethrow_if_nested(e);
+	} catch (const std::exception& e) {
+		log_exception(e, level + 2);
+	} catch (...) {
+	}
 }
 
 int main(int argc, char **argv) {
@@ -41,16 +51,19 @@ int main(int argc, char **argv) {
 		log_main->error("sodium_init() error: {}", error_sodium);
 		return 1;
 	}
-	log_main->info("Initialize libsodium.");
+	log_main->info("initialize libsodium");
 
-	const std::string arg_dir_base = argc == 1 ? "." : argv[1];
-	const std::string arg_nodename = argc < 3 ? "" : argv[2];
-	std::string error;
-	synkor::config config(arg_dir_base, arg_nodename, error);
-	if (!error.empty()) {
-		log_main->error(error);
+	const stdfs::path arg_dir_base = argc == 1 ? "." : argv[1];
+	std::string arg_peername;
+	if (argc == 3)
+		arg_peername.assign(argv[2]);
+
+	try {
+		synkor::config config { arg_dir_base, arg_peername };
+		synkor::server::start(&config);
+	} catch (const std::exception& e) {
+		log_exception(e);
 		usage();
 		return 1;
 	}
-	synkor::server::start(&config);
 }
