@@ -14,36 +14,25 @@
  * THIS SOFTWARE.
  */
 
-#pragma once
+#include <exception>
+#include <iostream>
 
-#ifndef SYNKOR_CONIG
-#define SYNKOR_CONIG
+#include "../contrib/spdlog/spdlog.h"
 
-#include <filesystem>
+#include "log.hpp"
 
-#include "global.hpp"
-
-namespace synkor {
-
-class config {
-
-private:
-	stdfs::path _dir_base;
-	std::string _peername;
-	int _listen_port;
-
-	static const stdfs::path path_dir_self(const stdfs::path&, const std::string&);
-	static const stdfs::path path_file_config(const stdfs::path&);
-	static const stdfs::path path_file_key_private(const stdfs::path&);
-	static const stdfs::path path_file_key_public(const stdfs::path&, const std::string&);
-
-public:
-	config(const stdfs::path&, const std::string&);
-
-	int get_listen_port() const;
-
-};
-
+void synkor::log::exception(const std::shared_ptr<spdlog::logger> logger, const std::exception& e, size_t level) {
+	logger->warn("{}", e.what());
+//	logger->warn("{}{}", std::string(level, ' '), e.what());
+	try {
+		std::rethrow_if_nested(e);
+	} catch (const std::exception& e) {
+		exception(logger, e, level + 2);
+	} catch (...) {
+	}
 }
 
-#endif
+void synkor::log::usage() {
+	std::cout << std::endl << " Usage: synkor [<base directory> [<peer name>]]" << std::endl << std::endl <<
+	  " To initialize the current directory type: ./synkor . my_peer_name" << std::endl << std::endl;
+}

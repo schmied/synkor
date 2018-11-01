@@ -26,20 +26,21 @@
 #include "../contrib/json11/json11.hpp"
 
 namespace synkor {
-	
+
 class filesystem {
 
 private:
 
 public:
 	static const stdfs::path canonical(const stdfs::path&);
-	static const bool is_file_readable(const stdfs::path&);
-	static const bool is_dir_writable(const stdfs::path&, const bool);
+	static bool is_file_readable(const stdfs::path&);
+	static bool is_dir_writable(const stdfs::path&, const bool);
 
 	static std::string load_string(const stdfs::path&);
 	static json11::Json load_json(const stdfs::path&);
 	static void save_string(const stdfs::path&, const std::string&);
 	static void save_json(const stdfs::path&, const json11::Json);
+
 };
 
 }

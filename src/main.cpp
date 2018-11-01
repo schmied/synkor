@@ -14,35 +14,22 @@
  * THIS SOFTWARE.
  */
 
-#include <iostream>
+//#include <iostream>
 
 #include "../contrib/sodium/sodium.h"
 #include "../contrib/spdlog/spdlog.h"
 #include "../contrib/spdlog/sinks/stdout_sinks.h"
 
 #include "config.hpp"
+#include "log.hpp"
 #include "server.hpp"
 
-const auto log_main = spdlog::stdout_logger_st("main");
-
-static void usage() {
-	log_main->info("\n\n Usage: synkor [<base directory> [<peer name>]]\n\n To initialize the current directory type: ./synkor . my_peer_name\n");
-}
-
-void log_exception(const std::exception& e, int level =  0) {
-	log_main->info("[exception] {}{}", std::string(level, ' '), e.what());
-	try {
-		std::rethrow_if_nested(e);
-	} catch (const std::exception& e) {
-		log_exception(e, level + 2);
-	} catch (...) {
-	}
-}
+static const auto log_main = spdlog::stdout_logger_st("main");
 
 int main(int argc, char **argv) {
 
 	if (argc > 3) {
-		usage();
+		synkor::log::usage();
 		return 1;
 	}
 
@@ -62,8 +49,8 @@ int main(int argc, char **argv) {
 		synkor::config config {arg_dir_base, arg_peername};
 		synkor::server::start(&config);
 	} catch (const std::exception& e) {
-		log_exception(e);
-		usage();
+		synkor::log::exception(log_main, e);
+		synkor::log::usage();
 		return 1;
 	}
 }

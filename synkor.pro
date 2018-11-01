@@ -9,18 +9,20 @@ DEFINES += SODIUM_STATIC
 QMAKE_CXXFLAGS += /std:c++17
 
 SOURCES += \
-    src/main.cpp \
+    contrib/json11/json11.cpp \
     src/config.cpp \
-    src/server.cpp \
     src/filesystem.cpp \
-    contrib/json11/json11.cpp
+    src/log.cpp \
+    src/main.cpp \
+    src/server.cpp
 
 HEADERS += \
+    contrib/json11/json11.hpp \
     src/config.hpp \
-    src/server.hpp \
     src/filesystem.hpp \
     src/global.hpp \
-    contrib/json11/json11.hpp
+    src/log.hpp \
+    src/server.hpp
 
 win32: LIBS += -L$$PWD/build/windows/vs/sodium/ -llibsodium
 

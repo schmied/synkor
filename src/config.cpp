@@ -21,19 +21,19 @@
 #include "../contrib/spdlog/spdlog.h"
 #include "../contrib/spdlog/sinks/stdout_sinks.h"
 
-#include "global.hpp"
-
 #include "config.hpp"
+#include "global.hpp"
+#include "log.hpp"
 #include "filesystem.hpp"
 
-const auto log_config = spdlog::stdout_logger_st("config");
+static const auto log_config = spdlog::stdout_logger_st("config");
 
-const stdfs::path FILE_CONFIG("synkor.conf");
-const stdfs::path FILE_KEY_PRIVATE("key_private");
-const stdfs::path FILE_KEY_PUBLIC("key_public.txt");
+static const stdfs::path FILE_CONFIG("synkor.conf");
+static const stdfs::path FILE_KEY_PRIVATE("key_private");
+static const stdfs::path FILE_KEY_PUBLIC("key_public.txt");
 
-const std::string JSON_KEY_PEERNAME("peername");
-const std::string JSON_KEY_LISTEN_PORT("listen_port");
+static const std::string JSON_KEY_PEERNAME("peername");
+static const std::string JSON_KEY_LISTEN_PORT("listen_port");
 
 const stdfs::path synkor::config::path_dir_self(const stdfs::path &dir_base, const std::string &nodename) {
 	return stdfs::path { dir_base.string() + "/" + nodename }.lexically_normal();
@@ -54,22 +54,22 @@ const stdfs::path synkor::config::path_file_key_public(const stdfs::path &dir_ba
 synkor::config::config(const stdfs::path &dir_base, const std::string &peername) {
 
 	if (!filesystem::is_dir_writable(dir_base, false))
-		throw std::runtime_error {__func__ + std::string("() no writable directory: " + dir_base.string())};
+		THROW_EXCEPTION("no writable directory: " + dir_base.string());
 	_dir_base = filesystem::canonical(dir_base).lexically_normal();
 	log_config->info("base directory: {}", _dir_base.string());
 
 	const stdfs::path file_config = path_file_config(_dir_base);
 	bool is_file_config = filesystem::is_file_readable(file_config);
 	if (!is_file_config && peername.empty())
-			throw std::runtime_error {__func__ + std::string("() no peer name defined, cannot initialize directory: " + _dir_base.string())};
+			THROW_EXCEPTION("no peer name defined, cannot initialize directory: " + _dir_base.string());
 	if (is_file_config && !peername.empty())
-			throw std::runtime_error {__func__ + std::string("() directory already initialized: " + _dir_base.string())};
+			THROW_EXCEPTION("directory already initialized: " + _dir_base.string());
 	if (is_file_config) {
 		log_config->info("config file: {}", file_config.string());
 		auto config_json = filesystem::load_json(path_file_config(_dir_base));
 		_peername = config_json[JSON_KEY_PEERNAME].string_value();
 		if (_peername.empty())
-			throw std::runtime_error {__func__ + std::string("() no peer name defined in config file: " + file_config.string())};
+			THROW_EXCEPTION("no peer name defined in config file: " + file_config.string());
 	} else {
 		_peername = peername;
 	}
@@ -77,19 +77,19 @@ synkor::config::config(const stdfs::path &dir_base, const std::string &peername)
 
 	const stdfs::path dir_self = path_dir_self(_dir_base, _peername);
 	if (!filesystem::is_dir_writable(dir_self, true))
-		throw std::runtime_error {__func__ + std::string("() no writable self directory: " + _dir_base.string())};
+		THROW_EXCEPTION("no writable self directory: " + _dir_base.string());
 
 	const stdfs::path file_key_private = path_file_key_private(_dir_base);
 	bool is_file_key_private = filesystem::is_file_readable(file_key_private);
 	if ((is_file_config && !is_file_key_private) || (!is_file_config && is_file_key_private))
-		throw std::runtime_error {__func__ + std::string("() no valid integrity in base directory: " + _dir_base.string())};
+		THROW_EXCEPTION("no valid integrity in base directory: " + _dir_base.string());
 	if (is_file_key_private)
 		log_config->info("private key: {}", file_key_private.string());
 
 	const stdfs::path file_key_public = path_file_key_public(_dir_base, _peername);
 	bool is_file_key_public = filesystem::is_file_readable(file_key_public);
 	if ((is_file_config && !is_file_key_public) || (!is_file_config && is_file_key_public))
-		throw std::runtime_error {__func__ + std::string("() no valid integrity in base directory: " + _dir_base.string())};
+		THROW_EXCEPTION("no valid integrity in base directory: " + _dir_base.string());
 	if (is_file_key_public)
 		log_config->info("public key: {}", file_key_public.string());
 
@@ -118,6 +118,6 @@ synkor::config::config(const stdfs::path &dir_base, const std::string &peername)
 	log_config->info("listen port: {}", _listen_port);
 }
 
-const int synkor::config::get_listen_port() const {
+int synkor::config::get_listen_port() const {
 	return _listen_port;
 }

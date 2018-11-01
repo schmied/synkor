@@ -20,15 +20,15 @@
 
 #include "server.hpp"
 
-const auto log_server = spdlog::stdout_logger_st("server");
+static const auto log_server = spdlog::stdout_logger_st("server");
 
-const int buf_net_len = 1024;
-const int buf_net_to_decrypt_len = 4 * buf_net_len;
-const int buf_decrypt_to_decompress_len = 1024;
-const int buf_decompress_len = 1024;
+static const int buf_net_len = 1024;
+static const int buf_net_to_decrypt_len = 4 * buf_net_len;
+static const int buf_decrypt_to_decompress_len = 1024;
+static const int buf_decompress_len = 1024;
 
-char buf_net_to_decrypt[buf_net_to_decrypt_len];
-char buf_decrypt_to_decompress[buf_decrypt_to_decompress_len];
+static char buf_net_to_decrypt[buf_net_to_decrypt_len];
+static char buf_decrypt_to_decompress[buf_decrypt_to_decompress_len];
 
 /*
 void server(asio::ip::tcp::socket socket) {

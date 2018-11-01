@@ -16,31 +16,25 @@
 
 #pragma once
 
-#ifndef SYNKOR_CONIG
-#define SYNKOR_CONIG
+#ifndef SYNKOR_LOG
+#define SYNKOR_LOG
 
-#include <filesystem>
+#include <exception>
 
-#include "global.hpp"
+#include "../contrib/spdlog/spdlog.h"
+
+#define THROW_EXCEPTION(WHAT) throw std::runtime_error {__func__ + std::string("() ") + WHAT};
+#define THROW_EXCEPTION_NESTED(WHAT) std::throw_with_nested(std::runtime_error {__func__ + std::string("() ") + WHAT});
 
 namespace synkor {
 
-class config {
+class log {
 
 private:
-	stdfs::path _dir_base;
-	std::string _peername;
-	int _listen_port;
-
-	static const stdfs::path path_dir_self(const stdfs::path&, const std::string&);
-	static const stdfs::path path_file_config(const stdfs::path&);
-	static const stdfs::path path_file_key_private(const stdfs::path&);
-	static const stdfs::path path_file_key_public(const stdfs::path&, const std::string&);
 
 public:
-	config(const stdfs::path&, const std::string&);
-
-	int get_listen_port() const;
+	static void exception(const std::shared_ptr<spdlog::logger>, const std::exception&, size_t level = 0);
+	static void usage();
 
 };
 

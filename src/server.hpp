@@ -37,6 +37,7 @@ public:
 	asio::ip::tcp::socket *socket() const;
 
 	static void start(config*);
+
 };
 
 }
