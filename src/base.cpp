@@ -56,7 +56,7 @@ synkor::base::base(const stdfs::path &dir_base, const std::string &peername) {
 
 	if (peername.empty())
 		THROW_EXCEPTION("no peer name defined: " + _dir_base.string());
-	_peername = peername;
+	_peername = valid_peername(peername);
 	logger->info("peer name: {}", _peername);
 
 	const auto dir_self = path_dir_self(_dir_base, _peername);
@@ -101,4 +101,25 @@ const stdfs::path synkor::base::dir_base() const {
 
 const std::string synkor::base::peername() const {
 	return _peername;
+}
+
+const std::string synkor::base::valid_peername(const std::string& peername) {
+	std::string valid_peername;
+	bool last_under = true;
+	for (const auto &c : peername) {
+		const auto c_lower = (char) std::tolower(c);
+		if ((c_lower >= 'a' && c_lower <= 'z') || (c_lower >= '0' && c_lower <= '9')) {
+			valid_peername.append(1, c_lower);
+			last_under = false;
+		} else {
+			if (!last_under)
+				valid_peername.append("_");
+			last_under = true;
+		}
+	}
+	if (valid_peername.empty())
+		THROW_EXCEPTION("peer name not valid");
+	if (valid_peername.length() > 200)
+		THROW_EXCEPTION("peer name length not valid");
+	return valid_peername;
 }

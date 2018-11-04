@@ -53,11 +53,14 @@ const std::string synkor::config::_peername(const stdfs::path &dir_base, const s
 		const auto peername_json = config_json[JSON_KEY_PEERNAME].string_value();
 		if (peername_json.empty())
 			THROW_EXCEPTION("no peer name defined in config file: " + file_config.string());
-		return peername_json;
+		if (peername_json != base::valid_peername(peername_json))
+			THROW_EXCEPTION("peer name defined in config file not valid.");
+		return base::valid_peername(peername_json);
 	}
-	filesystem::save_string(file_config, "{ \"" + JSON_KEY_PEERNAME + "\": \"" + peername + "\" }");
+	const auto valid_peername = base::valid_peername(peername);
+	filesystem::save_string(file_config, "{ \"" + JSON_KEY_PEERNAME + "\": \"" + valid_peername + "\" }");
 	logger->info("create config file: {}", file_config.string());
-	return peername;
+	return valid_peername;
 }
 
 /*

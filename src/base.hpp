@@ -40,6 +40,8 @@ public:
 
 	const stdfs::path dir_base() const;
 	const std::string peername() const;
+
+	static const std::string valid_peername(const std::string&);
 };
 
 }
