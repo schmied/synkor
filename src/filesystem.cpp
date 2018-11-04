@@ -27,7 +27,15 @@
 #include "global.hpp"
 #include "log.hpp"
 
-static const auto log_filesystem = spdlog::stdout_logger_st("filesystem");
+/*
+ * ******************************************************** private
+ */
+
+static const auto logger = spdlog::stdout_logger_st(stdfs::path(__FILE__).stem().string());
+
+/*
+ * ******************************************************** public
+ */
 
 const stdfs::path synkor::filesystem::canonical(const stdfs::path &path) {
 	try {
@@ -56,7 +64,7 @@ bool synkor::filesystem::is_dir_writable(const stdfs::path &path, const bool cre
 				return false;
 			if (!stdfs::create_directories(path))
 				THROW_EXCEPTION("cannot create directory: " + path.string());
-			log_filesystem->info("create directory {}", path.string());
+			logger->info("create directory {}", path.string());
 		}
 		if (!stdfs::is_directory(path))
 			THROW_EXCEPTION("no directory: " + path.string());

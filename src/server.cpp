@@ -20,7 +20,11 @@
 
 #include "server.hpp"
 
-static const auto log_server = spdlog::stdout_logger_st("server");
+/*
+ * ******************************************************** private
+ */
+
+static const auto logger = spdlog::stdout_logger_st(stdfs::path(__FILE__).stem().string());
 
 static const int buf_net_len = 1024;
 static const int buf_net_to_decrypt_len = 4 * buf_net_len;
@@ -69,13 +73,13 @@ void thread_net(asio::ip::tcp::socket socket) {
 		else if (error)
 			throw std::system_error(error); // Some other error.
 
-		log_server->info("buf_net: \n", buf_net);
+		logger->info("buf_net: \n", buf_net);
 		//		char *start = buf_idx_net_to_decrypt_start;
 
 		std::memcpy(buf_net_to_decrypt, buf_net, length);
 		//		boost::asio::write(sock, boost::asio::buffer(data, length));
 	}
-	log_server->info("session closed");
+	logger->info("session closed");
 }
 
 /*
@@ -88,6 +92,10 @@ void server::thread_decompress(server *server) {
 }
 */
 
+/*
+ * ******************************************************** public
+ */
+
 synkor::server::server(config *config, asio::ip::tcp::socket *socket) {
 	_config = config;
 	_socket = socket;
@@ -99,13 +107,13 @@ asio::ip::tcp::socket *synkor::server::socket() const {
 
 void synkor::server::start(config *config) {
 
-	if (config == nullptr || config->get_listen_port() <= 0)
+	if (config == nullptr || config->listen_port() <= 0)
 		return;
 
 	asio::io_context asio;
 //	for (;;) {
-		asio::ip::tcp::acceptor acceptor(asio, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config->get_listen_port()));
-		log_server->info("Server listen on port {}", config->get_listen_port());
+		asio::ip::tcp::acceptor acceptor(asio, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config->listen_port()));
+		logger->info("Server listen on port {}", config->listen_port());
 		for (;;) {
 			const asio::ip::tcp::socket socket(asio);
 			std::thread(thread_net, acceptor.accept()).detach();

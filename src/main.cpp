@@ -24,7 +24,7 @@
 #include "log.hpp"
 #include "server.hpp"
 
-static const auto log_main = spdlog::stdout_logger_st("main");
+static const auto logger = spdlog::stdout_logger_st(stdfs::path(__FILE__).stem().string());
 
 int main(int argc, char **argv) {
 
@@ -35,10 +35,10 @@ int main(int argc, char **argv) {
 
 	const int error_sodium = sodium_init();
 	if (error_sodium != 0) {
-		log_main->error("sodium_init() error: {}", error_sodium);
+		logger->error("sodium_init() error: {}", error_sodium);
 		return 1;
 	}
-	log_main->info("initialize libsodium");
+	logger->info("initialize libsodium");
 
 	const stdfs::path arg_dir_base {argc == 1 ? "." : argv[1]};
 	std::string arg_peername;
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 		synkor::config config {arg_dir_base, arg_peername};
 		synkor::server::start(&config);
 	} catch (const std::exception& e) {
-		synkor::log::exception(log_main, e);
+		synkor::log::exception(logger, e);
 		synkor::log::usage();
 		return 1;
 	}

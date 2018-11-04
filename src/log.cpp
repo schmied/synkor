@@ -21,6 +21,14 @@
 
 #include "log.hpp"
 
+/*
+ * ******************************************************** private
+ */
+
+/*
+ * ******************************************************** public
+ */
+
 void synkor::log::exception(const std::shared_ptr<spdlog::logger> logger, const std::exception& e, size_t level) {
 	logger->warn("{}", e.what());
 //	logger->warn("{}{}", std::string(level, ' '), e.what());

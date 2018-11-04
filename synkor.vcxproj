@@ -20,16 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="contrib\json11\json11.cpp" />
+    <ClCompile Include="src\base.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\filesystem.cpp" />
+    <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrib\json11\json11.hpp" />
+    <ClInclude Include="src\base.hpp" />
     <ClInclude Include="src\config.hpp" />
     <ClInclude Include="src\filesystem.hpp" />
     <ClInclude Include="src\global.hpp" />
+    <ClInclude Include="src\log.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\server.hpp" />

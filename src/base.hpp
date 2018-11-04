@@ -16,30 +16,30 @@
 
 #pragma once
 
-#ifndef SYNKOR_CONIG
-#define SYNKOR_CONIG
+#ifndef SYNKOR_BASE
+#define SYNKOR_BASE
 
 #include <filesystem>
 
-#include "base.hpp"
 #include "global.hpp"
 
 namespace synkor {
 
-class config {
+class base {
 
 private:
-	base _base;
-	int _listen_port;
+	stdfs::path _dir_base;
+	std::string _peername;
 
-	static const stdfs::path _path_file_config(const stdfs::path&);
-	static const std::string _peername(const stdfs::path&, const std::string&);
+	static const stdfs::path path_dir_self(const stdfs::path&, const std::string&);
+	static const stdfs::path path_file_key_private(const stdfs::path&);
+	static const stdfs::path path_file_key_public(const stdfs::path&, const std::string&);
 
 public:
-	config(const stdfs::path&, const std::string&);
+	base(const stdfs::path&, const std::string&);
 
-	int listen_port() const;
-
+	const stdfs::path dir_base() const;
+	const std::string peername() const;
 };
 
 }
