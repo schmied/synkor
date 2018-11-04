@@ -81,14 +81,14 @@ std::string synkor::filesystem::load_string(const stdfs::path &path) {
 		std::string s;
 		if (!is_file_readable(path))
 			THROW_EXCEPTION("no file: " + path.string());
-		std::ifstream ifs { path, std::ios_base::binary | std::ios_base::in };
+		std::ifstream ifs {path, std::ios_base::binary | std::ios_base::in};
 		asio::streambuf sb;
 		const size_t buf_len = 1024;
 		while (ifs) {
-			asio::mutable_buffer in = sb.prepare(buf_len);
+			auto in = sb.prepare(buf_len);
 			ifs.read((char*)in.data(), buf_len);
 			sb.commit((size_t) ifs.gcount());
-			asio::const_buffer out = sb.data();
+			const auto out = sb.data();
 			s.append((const char*) out.data());
 			sb.consume(out.size());
 		}
@@ -102,9 +102,9 @@ std::string synkor::filesystem::load_string(const stdfs::path &path) {
 
 json11::Json synkor::filesystem::load_json(const stdfs::path& path) {
 	try {
-		std::string s = load_string(path);
+		const auto s = load_string(path);
 		std::string error;
-		json11::Json json = json11::Json::parse(s, error);
+		const auto json = json11::Json::parse(s, error);
 		if (!error.empty())
 			THROW_EXCEPTION("parse error: " + error);
 		return json;
@@ -115,7 +115,7 @@ json11::Json synkor::filesystem::load_json(const stdfs::path& path) {
 
 void synkor::filesystem::save_string(const stdfs::path &path, const std::string& s) {
 	try {
-		std::ofstream ofs{ path, std::ios_base::binary | std::ios_base::out };
+		std::ofstream ofs {path, std::ios_base::binary | std::ios_base::out};
 		ofs.write(s.c_str(), (std::streamsize) s.size());
 		ofs.close();
 	} catch (...) {

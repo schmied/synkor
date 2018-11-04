@@ -112,10 +112,10 @@ void synkor::server::start(config *config) {
 
 	asio::io_context asio;
 //	for (;;) {
-		asio::ip::tcp::acceptor acceptor(asio, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config->listen_port()));
+		asio::ip::tcp::acceptor acceptor {asio, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), config->listen_port())};
 		logger->info("Server listen on port {}", config->listen_port());
 		for (;;) {
-			const asio::ip::tcp::socket socket(asio);
+			const asio::ip::tcp::socket socket {asio};
 			std::thread(thread_net, acceptor.accept()).detach();
 		}
 //	}

@@ -28,19 +28,19 @@
 
 static const auto logger = spdlog::stdout_logger_st(stdfs::path(__FILE__).stem().string());
 
-static const stdfs::path FILE_KEY_PRIVATE("key_private");
-static const stdfs::path FILE_KEY_PUBLIC("key_public.txt");
+static const stdfs::path FILE_KEY_PRIVATE {"key_private"};
+static const stdfs::path FILE_KEY_PUBLIC {"key_public.txt"};
 
 const stdfs::path synkor::base::path_dir_self(const stdfs::path &dir_base, const std::string &peername) {
-	return stdfs::path { dir_base.string() + "/" + peername }.lexically_normal();
+	return stdfs::path {dir_base.string() + "/" + peername}.lexically_normal();
 }
 
 const stdfs::path synkor::base::path_file_key_private(const stdfs::path &dir_base) {
-	return stdfs::path { dir_base.string() + "/" + FILE_KEY_PRIVATE.string() }.lexically_normal();
+	return stdfs::path {dir_base.string() + "/" + FILE_KEY_PRIVATE.string()}.lexically_normal();
 }
 
 const stdfs::path synkor::base::path_file_key_public(const stdfs::path &dir_base, const std::string &peername) {
-	return stdfs::path { dir_base.string() + "/" + peername + "/" + FILE_KEY_PUBLIC.string() }.lexically_normal();
+	return stdfs::path {dir_base.string() + "/" + peername + "/" + FILE_KEY_PUBLIC.string()}.lexically_normal();
 }
 
 /*
@@ -59,19 +59,19 @@ synkor::base::base(const stdfs::path &dir_base, const std::string &peername) {
 	_peername = peername;
 	logger->info("peer name: {}", _peername);
 
-	const stdfs::path dir_self = path_dir_self(_dir_base, _peername);
+	const auto dir_self = path_dir_self(_dir_base, _peername);
 	if (!filesystem::is_dir_writable(dir_self, true))
 		THROW_EXCEPTION("no writable self directory: " + _dir_base.string());
 
-	const stdfs::path file_key_private = path_file_key_private(_dir_base);
-	bool is_file_key_private = filesystem::is_file_readable(file_key_private);
+	const auto file_key_private = path_file_key_private(_dir_base);
+	const auto is_file_key_private = filesystem::is_file_readable(file_key_private);
 	if (is_file_key_private)
 		logger->info("private key: {}", file_key_private.string());
 	else
 		logger->info("no private key: {}", file_key_private.string());
 
-	const stdfs::path file_key_public = path_file_key_public(_dir_base, _peername);
-	bool is_file_key_public = filesystem::is_file_readable(file_key_public);
+	const auto file_key_public = path_file_key_public(_dir_base, _peername);
+	const auto is_file_key_public = filesystem::is_file_readable(file_key_public);
 	if (is_file_key_public)
 		logger->info("public key: {}", file_key_public.string());
 	else

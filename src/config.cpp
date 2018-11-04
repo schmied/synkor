@@ -32,13 +32,13 @@
 
 static const auto logger = spdlog::stdout_logger_st(stdfs::path(__FILE__).stem().string());
 
-static const stdfs::path FILE_CONFIG("synkor.conf");
+static const stdfs::path FILE_CONFIG {"synkor.conf"};
 
-static const std::string JSON_KEY_PEERNAME("peername");
-static const std::string JSON_KEY_LISTEN_PORT("listen_port");
+static const std::string JSON_KEY_PEERNAME {"peername"};
+static const std::string JSON_KEY_LISTEN_PORT {"listen_port"};
 
 const stdfs::path synkor::config::_path_file_config(const stdfs::path &dir_base) {
-	return stdfs::path { dir_base.string() + "/" + FILE_CONFIG.string() }.lexically_normal();
+	return stdfs::path {dir_base.string() + "/" + FILE_CONFIG.string()}.lexically_normal();
 }
 
 const std::string synkor::config::_peername(const stdfs::path &dir_base, const std::string &peername) {
@@ -49,7 +49,6 @@ const std::string synkor::config::_peername(const stdfs::path &dir_base, const s
 	if (is_file_config && !peername.empty())
 			THROW_EXCEPTION("directory already initialized: " + dir_base.string());
 	if (is_file_config) {
-		logger->info("config file: {}", file_config.string());
 		const auto config_json = filesystem::load_json(file_config);
 		const auto peername_json = config_json[JSON_KEY_PEERNAME].string_value();
 		if (peername_json.empty())
@@ -57,7 +56,7 @@ const std::string synkor::config::_peername(const stdfs::path &dir_base, const s
 		return peername_json;
 	}
 	filesystem::save_string(file_config, "{ \"" + JSON_KEY_PEERNAME + "\": \"" + peername + "\" }");
-	logger->info("write config file: {}", file_config.string());
+	logger->info("create config file: {}", file_config.string());
 	return peername;
 }
 
