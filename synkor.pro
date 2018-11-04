@@ -14,7 +14,8 @@ SOURCES += \
     src/filesystem.cpp \
     src/log.cpp \
     src/main.cpp \
-    src/server.cpp
+    src/server.cpp \
+    src/base.cpp
 
 HEADERS += \
     contrib/json11/json11.hpp \
@@ -22,7 +23,8 @@ HEADERS += \
     src/filesystem.hpp \
     src/global.hpp \
     src/log.hpp \
-    src/server.hpp
+    src/server.hpp \
+    src/base.hpp
 
 win32: LIBS += -L$$PWD/build/windows/vs/sodium/ -llibsodium
 
