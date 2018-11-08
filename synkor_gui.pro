@@ -31,20 +31,15 @@ QMAKE_CXXFLAGS += /std:c++17
 
 SOURCES += \
     src/gui/main.cpp \
-    src/gui/mainwindow.cpp
+    src/gui/window.cpp
 
 HEADERS += \
-    src/gui/mainwindow.h
+    src/gui/window.hpp
 
 FORMS += \
-    src/gui/mainwindow.ui
+    src/gui/window.ui
 
 win32: LIBS += -L$$PWD/build/windows/vs/sodium/ -llibsodium
 
 win32:!win32-g++: PRE_TARGETDEPS += $$PWD/build/windows/vs/sodium/libsodium.lib
 else:win32-g++: PRE_TARGETDEPS += $$PWD/build/windows/vs/sodium/liblibsodium.a
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
