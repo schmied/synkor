@@ -1,36 +1,31 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include <QMainWindow>
-
 #include <QFileSystemModel>
-#include <QTreeView>
+#include <QMainWindow>
 
 namespace Ui {
 class window;
 }
 
-class window : public QMainWindow
-{
+class window : public QMainWindow {
 	Q_OBJECT
+
+private:
+	Ui::window *ui_;
+	QFileSystemModel model_src_list_;
+
+private slots:
+	void on_tree_view_src_clicked(const QModelIndex &index);
+	void on_list_view_src_doubleClicked(const QModelIndex &index);
+	void on_tree_view_src_doubleClicked(const QModelIndex &index);
+
+protected:
 
 public:
 	explicit window(QWidget *parent = nullptr);
 	~window();
 
-private slots:
-	void on_tree_view_src_clicked(const QModelIndex &index);
-
-	void on_list_view_src_doubleClicked(const QModelIndex &index);
-
-	void on_tree_view_src_doubleClicked(const QModelIndex &index);
-
-private:
-	Ui::window *ui;
-	QFileSystemModel model_src_tree;
-	QFileSystemModel model_src_list;
-	QFileSystemModel model_dst;
-
 };
 
-#endif // WINDOW_HPP
+#endif

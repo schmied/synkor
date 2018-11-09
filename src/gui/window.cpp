@@ -1,81 +1,60 @@
-#include "window.hpp"
-#include "ui_window.h"
 
-#include <QFileSystemModel>
-#include <QTreeView>
+#include "window.hpp"
+
+#include "ui_window.h"
 
 window::window(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::window) {
+	ui_(new Ui::window) {
 
-	ui->setupUi(this);
+	ui_->setupUi(this);
+	ui_->tree_view_src->set_ui(ui_);
+	ui_->tree_view_dst->set_ui(ui_);
 
 	auto root {QDir::drives().first().filePath()};
 
-	model_src_tree.setReadOnly(true);
-	model_src_tree.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-	model_src_tree.sort(0);
-	model_src_tree.setRootPath(root);
-	ui->tree_view_src->setColumnHidden(2, true);
-	ui->tree_view_src->setColumnHidden(3, true);
-	ui->tree_view_src->setModel(&model_src_tree);
-	ui->tree_view_src->setColumnHidden(2, true);
-	ui->tree_view_src->setColumnHidden(3, true);
+	model_src_list_.setReadOnly(true);
+	model_src_list_.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
+	model_src_list_.sort(0);
+	ui_->list_view_src->setModel(&model_src_list_);
+	model_src_list_.setRootPath(root);
 
-	model_src_list.setRootPath(root);
-	ui->list_view_src->setModel(&model_src_list);
-
-	model_dst.setReadOnly(true);
-	model_dst.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-	model_dst.sort(0);
-	model_dst.setRootPath(root);
-	ui->tree_view_dst->setModel(&model_dst);
-
-	ui->label_src->setText(root);
-	ui->label_dst->setText(root);
+	ui_->label_src->setText(root);
+	ui_->label_dst->setText(root);
 }
 
 window::~window() {
-	delete ui;
+	delete ui_;
 }
 
 void window::on_tree_view_src_clicked(const QModelIndex &index) {
-	const QString path {model_src_tree.filePath(index)};
+	const QString path {ui_->tree_view_src->model()->filePath(index)};
 
-	model_src_list.setRootPath(path);
-	ui->list_view_src->setRootIndex(model_src_list.index(path));
+	model_src_list_.setRootPath(path);
+	ui_->list_view_src->setRootIndex(model_src_list_.index(path));
 
-	ui->label_src->setText(QDir().toNativeSeparators(path));
+	ui_->label_src->setText(QDir().toNativeSeparators(path));
 }
 
 void window::on_tree_view_src_doubleClicked(const QModelIndex &index) {
-	const QString path {model_src_tree.filePath(index)};
-
-//	ui->tree_view_src->collapseAll();
-//	auto current = model_src_tree.index(path);
-//	while (current.isValid()) {
-//		ui->tree_view_src->expand(current);
-//		current = current.parent();
-//	}
-
-//	model_src_list.setRootPath(path);
-//	ui->list_view_src->setRootIndex(model_src_list.index(path));
-
-	ui->label_src->setText(QDir().toNativeSeparators(path));
+	const QString path {ui_->tree_view_src->model()->filePath(index)};
+	ui_->label_src->setText(QDir().toNativeSeparators(path));
 }
 
 void window::on_list_view_src_doubleClicked(const QModelIndex &index) {
-	const QString path {model_src_list.filePath(index)};
+	const QString path {model_src_list_.filePath(index)};
 
 //	ui->tree_view_src->collapseAll();
-	auto current = model_src_tree.index(path);
+	auto current = ui_->tree_view_src->model()->index(path);
+	ui_->tree_view_src->selectionModel()->clearSelection();
+	ui_->tree_view_src->selectionModel()->select(current, QItemSelectionModel::Select);
 	while (current.isValid()) {
-		ui->tree_view_src->expand(current);
+		ui_->tree_view_src->expand(current);
 		current = current.parent();
 	}
 
-	model_src_list.setRootPath(path);
-	ui->list_view_src->setRootIndex(model_src_list.index(path));
+	model_src_list_.setRootPath(path);
+	ui_->list_view_src->setRootIndex(model_src_list_.index(path));
 
-	ui->label_src->setText(QDir().toNativeSeparators(path));
+	ui_->label_src->setText(QDir().toNativeSeparators(path));
 }

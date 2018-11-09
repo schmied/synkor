@@ -10,6 +10,12 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>320</width>
+    <height>200</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>synkor GUI</string>
   </property>
@@ -17,12 +23,6 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="central_widget">
-   <property name="minimumSize">
-    <size>
-     <width>320</width>
-     <height>200</height>
-    </size>
-   </property>
    <layout class="QHBoxLayout" name="horizontal_layout" stretch="0,0">
     <property name="spacing">
      <number>0</number>
@@ -57,7 +57,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QTreeView" name="tree_view_src">
+         <widget class="tree_view" name="tree_view_src">
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
           </property>
@@ -70,8 +70,8 @@
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
-          <property name="dragEnabled">
-           <bool>true</bool>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DropOnly</enum>
           </property>
           <property name="rootIsDecorated">
            <bool>false</bool>
@@ -101,8 +101,11 @@
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
-          <property name="dragEnabled">
-           <bool>true</bool>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DragOnly</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::IgnoreAction</enum>
           </property>
           <property name="selectionMode">
            <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -132,7 +135,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QTreeView" name="tree_view_dst">
+       <widget class="tree_view" name="tree_view_dst">
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOn</enum>
         </property>
@@ -141,6 +144,12 @@
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::DropOnly</enum>
         </property>
         <property name="rootIsDecorated">
          <bool>false</bool>
@@ -161,6 +170,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>tree_view</class>
+   <extends>QTreeView</extends>
+   <header>src/gui/tree_view.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
