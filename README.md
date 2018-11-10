@@ -1,0 +1,2 @@
+# synkor
+File synchronizer.
