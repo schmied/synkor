@@ -1,8 +1,9 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include <QFileSystemModel>
 #include <QMainWindow>
+
+#include "base_view.hpp"
 
 namespace Ui {
 class window;
@@ -13,12 +14,9 @@ class window : public QMainWindow {
 
 private:
 	Ui::window *ui_;
-	QFileSystemModel model_src_list_;
+	base_view *base_view_;
 
 private slots:
-	void on_tree_view_src_clicked(const QModelIndex &index);
-	void on_list_view_src_doubleClicked(const QModelIndex &index);
-	void on_tree_view_src_doubleClicked(const QModelIndex &index);
 
 protected:
 

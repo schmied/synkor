@@ -1,11 +1,11 @@
-#ifndef TREE_VIEW_HPP
-#define TREE_VIEW_HPP
+#ifndef LIST_VIEW_HPP
+#define LIST_VIEW_HPP
 
-#include <QTreeView>
+#include <QListView>
 
 class base_view;
 
-class tree_view : public QTreeView {
+class list_view : public QListView {
 	Q_OBJECT
 
 private:
@@ -22,7 +22,7 @@ protected:
 //	void customContextMenuRequested(const QPoint&);
 
 public:
-	explicit tree_view(QWidget *parent = nullptr);
+	explicit list_view(QWidget *parent = nullptr);
 
 	void set_base_view(base_view*);
 

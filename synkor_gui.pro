@@ -32,11 +32,15 @@ QMAKE_CXXFLAGS += /std:c++17
 SOURCES += \
     src/gui/main.cpp \
     src/gui/window.cpp \
-    src/gui/tree_view.cpp
+    src/gui/tree_view.cpp \
+    src/gui/list_view.cpp \
+    src/gui/base_view.cpp
 
 HEADERS += \
     src/gui/window.hpp \
-    src/gui/tree_view.hpp
+    src/gui/tree_view.hpp \
+    src/gui/base_view.hpp \
+    src/gui/list_view.hpp
 
 FORMS += \
     src/gui/window.ui
