@@ -2,6 +2,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QMimeData>
+#include <QFileIconProvider>
 
 #include "item_view.hpp"
 
@@ -18,18 +19,19 @@ item_view::item_view(tree_view *tree_view, list_view *list_view, QLineEdit *head
 	const auto root = QDir::drives().first().filePath();
 
 	tree_model_.setReadOnly(true);
-	tree_model_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden);
+	tree_model_.setFilter(FILTER_BASE_TREE);
+	tree_model_.iconProvider()->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
 	tree_model_.sort(0);
 	tree_model_.setRootPath(root);
-	tree_->setModel(&tree_model_);
 	tree_->setRootIsDecorated(false);
-//	tree_->setStyleSheet( "QTreeView::branch { border-image: url(none.png); }");
 	tree_->setIndentation(10);
 //	tree->setColumnHidden(2, true);
 //	tree->setColumnHidden(3, true);
+	tree_->setModel(&tree_model_);
 
 	list_model_.setReadOnly(true);
-	list_model_.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
+	list_model_.setFilter(FILTER_BASE_LIST);
+	tree_model_.iconProvider()->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
 	list_model_.sort(0);
 	list_model_.setRootPath(root);
 	list_->setModel(&list_model_);
@@ -83,7 +85,7 @@ void item_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QF
 		}
 		if (count == 0)
 			return;
-		status.append("Copy/Move/Sync ");
+		status.append("Copy / Move / Sync ");
 		status.append(std::to_string(count).c_str());
 		if (count == 1)
 			status.append(" item to ");
@@ -165,4 +167,19 @@ void item_view::mouseDoubleClickEventList(QMouseEvent *event) {
 		}
 	}
 	event->accept();
+}
+
+
+void item_view::toggleFilter() {
+	auto filter_tree = FILTER_BASE_TREE;
+	auto filter_list = FILTER_BASE_LIST;
+	if (list_model_.filter() & QDir::Hidden) {
+		status_bar_->showMessage("Do not show hidden entries.");
+	} else {
+		filter_tree |= FILTER_ADD_HIDDEN;
+		filter_list |= FILTER_ADD_HIDDEN;
+		status_bar_->showMessage("Show hidden entries.");
+	}
+	tree_model_.setFilter(filter_tree);
+	list_model_.setFilter(filter_list);
 }

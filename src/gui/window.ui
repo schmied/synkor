@@ -20,10 +20,13 @@
    <string>synkor GUI</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMenu::indicator {  width: 0px; height: 0px; }
+   <string notr="true">QMenu { padding: 4px; }
+QMenu::indicator { width: 0px; height: 0px; }
 QTreeView { icon-size: 0px; }
 QTreeView::branch { icon-size: 0px; border-image: url(none.png) }
-QLineEdit { padding: 3px; }</string>
+QLineEdit { padding: 2px; }
+QPushButton { padding: 4px; }
+QTabBar::tab { height: 18px; }</string>
   </property>
   <property name="animated">
    <bool>false</bool>
@@ -79,14 +82,31 @@ QLineEdit { padding: 3px; }</string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QLineEdit" name="rl_item_left_head">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="rl_item_left_head">
+            <item>
+             <widget class="QLineEdit" name="rl_item_left_head_locator">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="rl_item_left_head_filter">
+              <property name="toolTip">
+               <string>Filter</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">padding-left: 8px; padding-right: 8px;</string>
+              </property>
+              <property name="text">
+               <string>F</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="rl_item_left_layout">
@@ -174,14 +194,31 @@ QLineEdit { padding: 3px; }</string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QLineEdit" name="rl_item_right_head">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="rl_item_right_head">
+            <item>
+             <widget class="QLineEdit" name="rl_item_right_head_locator">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="rl_item_right_head_filter">
+              <property name="toolTip">
+               <string>Filter</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">padding-left: 8px; padding-right: 8px;</string>
+              </property>
+              <property name="text">
+               <string>F</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="rl_item_right_layout">
@@ -248,6 +285,9 @@ QLineEdit { padding: 3px; }</string>
               <property name="selectionBehavior">
                <enum>QAbstractItemView::SelectRows</enum>
               </property>
+              <property name="uniformItemSizes">
+               <bool>true</bool>
+              </property>
               <property name="selectionRectVisible">
                <bool>true</bool>
               </property>
@@ -286,7 +326,26 @@ QLineEdit { padding: 3px; }</string>
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="status_bar"/>
+  <widget class="QStatusBar" name="status_bar">
+   <property name="minimumSize">
+    <size>
+     <width>3</width>
+     <height>16</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>16</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>MS Shell Dlg 2</family>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

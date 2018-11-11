@@ -19,6 +19,10 @@ private:
 
 private slots:
 
+	void on_rl_item_left_head_filter_clicked();
+
+	void on_rl_item_right_head_filter_clicked();
+
 protected:
 
 public:

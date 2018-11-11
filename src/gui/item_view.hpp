@@ -4,11 +4,26 @@
 #include <QAbstractItemView>
 #include <QFileSystemModel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QStatusBar>
 
 
 class list_view;
 class tree_view;
+
+static const std::map<std::string, QDir::Filters> FILTERS_TREE {
+	std::make_pair("", QDir::NoDotAndDotDot | QDir::Hidden),
+};
+
+/*
+static const std::map<std::string, QDir::Filters> FILTERS_LIST {
+	std::make_pair("", QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden),
+};
+*/
+
+static const auto FILTER_BASE_TREE = QDir::AllDirs | QDir::NoDotAndDotDot;
+static const auto FILTER_BASE_LIST = QDir::AllEntries | QDir::NoDotAndDotDot;
+static const auto FILTER_ADD_HIDDEN = QDir::Hidden | QDir::System;
 
 class item_view {
 
@@ -19,7 +34,6 @@ private:
 	QStatusBar *status_bar_;
 	QFileSystemModel list_model_;
 	QFileSystemModel tree_model_;
-
 
 public:
 	item_view(tree_view*, list_view*, QLineEdit*, QStatusBar*);
@@ -33,6 +47,8 @@ public:
 
 	void mousePressEventTree(QMouseEvent*);
 	void mouseDoubleClickEventList(QMouseEvent*);
+
+	void toggleFilter();
 
 	static void dragEnterEvent(QDragEnterEvent*);
 	static void dragLeaveEvent(QDragLeaveEvent*, QAbstractItemView*);
