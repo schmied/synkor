@@ -3,7 +3,7 @@
 
 #include <QAbstractItemView>
 #include <QFileSystemModel>
-#include <QLabel>
+#include <QLineEdit>
 #include <QStatusBar>
 
 
@@ -15,18 +15,18 @@ class item_view {
 private:
 	list_view *list_;
 	tree_view *tree_;
-	QLabel *label_;
+	QLineEdit *head_;
 	QStatusBar *status_bar_;
 	QFileSystemModel list_model_;
 	QFileSystemModel tree_model_;
 
 
 public:
-	item_view(tree_view*, list_view*, QLabel*, QStatusBar*);
+	item_view(tree_view*, list_view*, QLineEdit*, QStatusBar*);
 
 	list_view* list();
 	tree_view* tree();
-	QLabel* label();
+	QLineEdit* head();
 	QStatusBar* status_bar();
 	QFileSystemModel* list_model();
 	QFileSystemModel* tree_model();

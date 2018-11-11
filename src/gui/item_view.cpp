@@ -8,11 +8,11 @@
 #include "list_view.hpp"
 #include "tree_view.hpp"
 
-item_view::item_view(tree_view *tree_view, list_view *list_view, QLabel *label, QStatusBar *status_bar) {
+item_view::item_view(tree_view *tree_view, list_view *list_view, QLineEdit *head, QStatusBar *status_bar) {
 
 	list_ = list_view;
 	tree_ = tree_view;
-	label_ = label;
+	head_ = head;
 	status_bar_ = status_bar;
 
 	const auto root = QDir::drives().first().filePath();
@@ -23,8 +23,8 @@ item_view::item_view(tree_view *tree_view, list_view *list_view, QLabel *label, 
 	tree_model_.setRootPath(root);
 	tree_->setModel(&tree_model_);
 	tree_->setRootIsDecorated(false);
-	tree_->setStyleSheet( "QTreeView::branch { border-image: url(none.png); image: url(none.png); }");
-	tree_->setIndentation(16);
+//	tree_->setStyleSheet( "QTreeView::branch { border-image: url(none.png); }");
+	tree_->setIndentation(10);
 //	tree->setColumnHidden(2, true);
 //	tree->setColumnHidden(3, true);
 
@@ -34,7 +34,7 @@ item_view::item_view(tree_view *tree_view, list_view *list_view, QLabel *label, 
 	list_model_.setRootPath(root);
 	list_->setModel(&list_model_);
 
-	label_->setText(QDir::toNativeSeparators(root));
+	head_->setText(QDir::toNativeSeparators(root));
 }
 
 list_view* item_view::list() {
@@ -45,8 +45,8 @@ tree_view* item_view::tree() {
 	return tree_;
 }
 
-QLabel* item_view::label() {
-	return label_;
+QLineEdit* item_view::head() {
+	return head_;
 }
 
 QStatusBar* item_view::status_bar() {
@@ -118,12 +118,12 @@ void item_view::dropEvent(QDropEvent *event, QAbstractItemView *view) {
 
 void item_view::mousePressEventTree(QMouseEvent *event) {
 	tree_->selectionModel()->clearSelection();
-	label_->setText("");
+	head_->setText("");
 	auto index = tree_->indexAt(event->pos());
 	if (index.isValid()) {
 		tree_->selectionModel()->select(index, QItemSelectionModel::Select);
 		const auto path {tree_model_.filePath(index)};
-		label_->setText(QDir::toNativeSeparators(path));
+		head_->setText(QDir::toNativeSeparators(path));
 
 		if (event->button() & Qt::MouseButton::LeftButton) {
 			if (tree_->isExpanded(index)) {
@@ -161,7 +161,7 @@ void item_view::mouseDoubleClickEventList(QMouseEvent *event) {
 			list_model_.setRootPath(path);
 			list_->setRootIndex(list_model_.index(path));
 
-			label_->setText(QDir().toNativeSeparators(path));
+			head_->setText(QDir().toNativeSeparators(path));
 		}
 	}
 	event->accept();

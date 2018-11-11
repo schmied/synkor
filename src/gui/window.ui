@@ -19,6 +19,12 @@
   <property name="windowTitle">
    <string>synkor GUI</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QMenu::indicator {  width: 0px; height: 0px; }
+QTreeView { icon-size: 0px; }
+QTreeView::branch { icon-size: 0px; border-image: url(none.png) }
+QLineEdit { padding: 3px; }</string>
+  </property>
   <property name="animated">
    <bool>false</bool>
   </property>
@@ -53,7 +59,7 @@
        </attribute>
        <layout class="QHBoxLayout" name="rl_tab_layout">
         <property name="spacing">
-         <number>0</number>
+         <number>4</number>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -73,9 +79,12 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="rl_item_left_label">
-            <property name="text">
-             <string>TextLabel</string>
+           <widget class="QLineEdit" name="rl_item_left_head">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -86,6 +95,9 @@
             </property>
             <item>
              <widget class="tree_view" name="rl_item_left_tree">
+              <property name="styleSheet">
+               <string notr="true">QWidget { border: none; }</string>
+              </property>
               <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
@@ -120,6 +132,9 @@
             </item>
             <item>
              <widget class="list_view" name="rl_item_left_list">
+              <property name="styleSheet">
+               <string notr="true">QWidget { border: none; }</string>
+              </property>
               <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
@@ -159,9 +174,12 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="rl_item_right_label">
-            <property name="text">
-             <string>TextLabel</string>
+           <widget class="QLineEdit" name="rl_item_right_head">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -172,6 +190,9 @@
             </property>
             <item>
              <widget class="tree_view" name="rl_item_right_tree">
+              <property name="styleSheet">
+               <string notr="true">QWidget { border: none; }</string>
+              </property>
               <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
@@ -200,6 +221,9 @@
             </item>
             <item>
              <widget class="list_view" name="rl_item_right_list">
+              <property name="styleSheet">
+               <string notr="true">QWidget { border: none; }</string>
+              </property>
               <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
               </property>
