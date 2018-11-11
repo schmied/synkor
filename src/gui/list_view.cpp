@@ -3,30 +3,30 @@
 
 #include "list_view.hpp"
 
-#include "base_view.hpp"
+#include "item_view.hpp"
 
 list_view::list_view(QWidget *parent) : QListView(parent) {
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
-void list_view::set_base_view(base_view *base_view) {
-	base_view_ = base_view;
+void list_view::set_item_view(item_view *item_view) {
+	item_view_ = item_view;
 }
 
 void list_view::dragEnterEvent(QDragEnterEvent *event) {
-	base_view::dragEnterEvent(event);
+	item_view::dragEnterEvent(event);
 }
 
 void list_view::dragLeaveEvent(QDragLeaveEvent *event) {
-	base_view::dragLeaveEvent(event, this);
+	item_view::dragLeaveEvent(event, this);
 }
 
 void list_view::dragMoveEvent(QDragMoveEvent *event) {
-	base_view::dragMoveEvent(event, this, base_view_->list_model(), base_view_->status_bar());
+	item_view::dragMoveEvent(event, this, item_view_->list_model(), item_view_->status_bar());
 }
 
 void list_view::dropEvent(QDropEvent *event) {
-	base_view::dropEvent(event, this);
+	item_view::dropEvent(event, this);
 }
 
 void list_view::mousePressEvent(QMouseEvent *event) {
@@ -40,5 +40,5 @@ void list_view::mousePressEvent(QMouseEvent *event) {
 }
 
 void list_view::mouseDoubleClickEvent(QMouseEvent *event) {
-	base_view_->mouseDoubleClickEventList(event);
+	item_view_->mouseDoubleClickEventList(event);
 }

@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "base_view.hpp"
+#include "item_view.hpp"
 
 namespace Ui {
 class window;
@@ -14,7 +14,8 @@ class window : public QMainWindow {
 
 private:
 	Ui::window *ui_;
-	base_view *base_view_;
+	item_view *rl_item_left_;
+	item_view *rl_item_right_;
 
 private slots:
 

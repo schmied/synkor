@@ -10,7 +10,7 @@
 class list_view;
 class tree_view;
 
-class base_view {
+class item_view {
 
 private:
 	list_view *list_;
@@ -22,7 +22,7 @@ private:
 
 
 public:
-	base_view(tree_view*, list_view*, QLabel*, QStatusBar*);
+	item_view(tree_view*, list_view*, QLabel*, QStatusBar*);
 
 	list_view* list();
 	tree_view* tree();

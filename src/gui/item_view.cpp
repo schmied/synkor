@@ -3,12 +3,12 @@
 #include <QMouseEvent>
 #include <QMimeData>
 
-#include "base_view.hpp"
+#include "item_view.hpp"
 
 #include "list_view.hpp"
 #include "tree_view.hpp"
 
-base_view::base_view(tree_view *tree_view, list_view *list_view, QLabel *label, QStatusBar *status_bar) {
+item_view::item_view(tree_view *tree_view, list_view *list_view, QLabel *label, QStatusBar *status_bar) {
 
 	list_ = list_view;
 	tree_ = tree_view;
@@ -37,40 +37,40 @@ base_view::base_view(tree_view *tree_view, list_view *list_view, QLabel *label, 
 	label_->setText(QDir::toNativeSeparators(root));
 }
 
-list_view* base_view::list() {
+list_view* item_view::list() {
 	return list_;
 }
 
-tree_view* base_view::tree() {
+tree_view* item_view::tree() {
 	return tree_;
 }
 
-QLabel* base_view::label() {
+QLabel* item_view::label() {
 	return label_;
 }
 
-QStatusBar* base_view::status_bar() {
+QStatusBar* item_view::status_bar() {
 	return status_bar_;
 }
 
-QFileSystemModel *base_view::list_model() {
+QFileSystemModel *item_view::list_model() {
 	return &list_model_;
 }
 
-QFileSystemModel *base_view::tree_model() {
+QFileSystemModel *item_view::tree_model() {
 	return &tree_model_;
 }
 
-void base_view::dragEnterEvent(QDragEnterEvent *event) {
+void item_view::dragEnterEvent(QDragEnterEvent *event) {
 	event->acceptProposedAction();
 }
 
-void base_view::dragLeaveEvent(QDragLeaveEvent *event, QAbstractItemView *view) {
+void item_view::dragLeaveEvent(QDragLeaveEvent *event, QAbstractItemView *view) {
 	view->selectionModel()->clearSelection();
 	event->accept();
 }
 
-void base_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QFileSystemModel *model, QStatusBar *status_bar) {
+void item_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QFileSystemModel *model, QStatusBar *status_bar) {
 	view->selectionModel()->clearSelection();
 	QString status {};
 	const auto mime = event->mimeData();
@@ -106,7 +106,7 @@ void base_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QF
 	event->acceptProposedAction();
 }
 
-void base_view::dropEvent(QDropEvent *event, QAbstractItemView *view) {
+void item_view::dropEvent(QDropEvent *event, QAbstractItemView *view) {
 	QMenu *menu =new QMenu(view);
 	menu->addAction(new QAction("Copy", view));
 	menu->addAction(new QAction("Move", view));
@@ -116,7 +116,7 @@ void base_view::dropEvent(QDropEvent *event, QAbstractItemView *view) {
 	event->acceptProposedAction();
 }
 
-void base_view::mousePressEventTree(QMouseEvent *event) {
+void item_view::mousePressEventTree(QMouseEvent *event) {
 	tree_->selectionModel()->clearSelection();
 	label_->setText("");
 	auto index = tree_->indexAt(event->pos());
@@ -145,7 +145,7 @@ void base_view::mousePressEventTree(QMouseEvent *event) {
 	event->accept();
 }
 
-void base_view::mouseDoubleClickEventList(QMouseEvent *event) {
+void item_view::mouseDoubleClickEventList(QMouseEvent *event) {
 	auto list_index = list_->indexAt(event->pos());
 	if (list_index.isValid()) {
 		const QString path {list_model_.filePath(list_index)};

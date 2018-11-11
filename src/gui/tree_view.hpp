@@ -3,13 +3,13 @@
 
 #include <QTreeView>
 
-class base_view;
+class item_view;
 
 class tree_view : public QTreeView {
 	Q_OBJECT
 
 private:
-	base_view *base_view_;
+	item_view *item_view_;
 
 protected:
 	void dragEnterEvent(QDragEnterEvent*) override;
@@ -24,7 +24,7 @@ protected:
 public:
 	explicit tree_view(QWidget *parent = nullptr);
 
-	void set_base_view(base_view*);
+	void set_item_view(item_view*);
 
 };
 

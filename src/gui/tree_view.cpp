@@ -17,24 +17,24 @@ tree_view::tree_view(QWidget *parent) : QTreeView(parent) {
 */
 }
 
-void tree_view::set_base_view(base_view *base_view) {
-	base_view_ = base_view;
+void tree_view::set_item_view(item_view *item_view) {
+	item_view_ = item_view;
 }
 
 void tree_view::dragEnterEvent(QDragEnterEvent *event) {
-	base_view::dragEnterEvent(event);
+	item_view::dragEnterEvent(event);
 }
 
 void tree_view::dragLeaveEvent(QDragLeaveEvent *event) {
-	base_view::dragLeaveEvent(event, this);
+	item_view::dragLeaveEvent(event, this);
 }
 
 void tree_view::dragMoveEvent(QDragMoveEvent *event) {
-	base_view::dragMoveEvent(event, this, base_view_->tree_model(), base_view_->status_bar());
+	item_view::dragMoveEvent(event, this, item_view_->tree_model(), item_view_->status_bar());
 }
 
 void tree_view::dropEvent(QDropEvent *event) {
-	base_view::dropEvent(event, this);
+	item_view::dropEvent(event, this);
 }
 
 /*
@@ -49,9 +49,9 @@ void tree_view::contextMenuEvent(QContextMenuEvent *event) {
 */
 
 void tree_view::mousePressEvent(QMouseEvent *event) {
-	base_view_->mousePressEventTree(event);
+	item_view_->mousePressEventTree(event);
 }
 
 void tree_view::mouseDoubleClickEvent(QMouseEvent *event) {
-	base_view_->mousePressEventTree(event);
+	item_view_->mousePressEventTree(event);
 }
