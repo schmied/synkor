@@ -8,10 +8,11 @@
 #include "ui_window.h"
 
 tree_view::tree_view(QWidget *parent) : QTreeView(parent) {
-/*
-	setColumnHidden(2, true);
-	setColumnHidden(3, true);
+//	setColumnHidden(1, true);
+//	setColumnHidden(2, true);
+//	setColumnHidden(3, true);
 
+/*
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 //	setContextMenuPolicy(Qt::CustomContextMenu);
 */

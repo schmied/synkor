@@ -2,6 +2,7 @@
 #include "window.hpp"
 
 #include "item_view.hpp"
+#include "list_view.hpp"
 
 #include "ui_window.h"
 
@@ -31,4 +32,7 @@ void window::on_rl_item_left_head_filter_clicked() {
 
 void window::on_rl_item_right_head_filter_clicked() {
 	rl_item_right_->toggleFilter();
+	rl_item_right_->list()->baseSize().setWidth(100);
+	rl_item_right_->list()->setMaximumWidth(100);
+	rl_item_right_->list()->setMinimumWidth(100);
 }
