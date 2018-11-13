@@ -18,8 +18,7 @@ protected:
 	void dropEvent(QDropEvent*) override;
 	void mousePressEvent(QMouseEvent*) override;
 	void mouseDoubleClickEvent(QMouseEvent*) override;
-//	void contextMenuEvent(QContextMenuEvent*) override;
-//	void customContextMenuRequested(const QPoint&);
+	void contextMenuEvent(QContextMenuEvent*) override;
 
 public:
 	explicit tree_view(QWidget *parent = nullptr);

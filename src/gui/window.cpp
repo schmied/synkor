@@ -1,4 +1,6 @@
 
+#include <QMenu>
+
 #include "window.hpp"
 
 #include "item_view.hpp"
@@ -12,10 +14,26 @@ window::window(QWidget *parent) :
 
 	ui_->setupUi(this);
 
-	rl_item_left_ = new item_view {ui_->rl_item_left_tree, ui_->rl_item_left_list, ui_->rl_item_left_head_locator, ui_->status_bar};
+	context_menu_ = new QMenu();
+	context_menu_->setStyleSheet("QMenu { padding: 4px; } QMenu::indicator { width: 0px; height: 0px; }");
+	action_context_copy = context_menu_->addAction("Copy");
+	connect(action_context_copy, SIGNAL(triggered()), this, SLOT(context_copy_action()));
+	action_context_cut = context_menu_->addAction("Cut");
+	connect(action_context_cut, SIGNAL(triggered()), this, SLOT(context_cut_action()));
+	action_context_paste = context_menu_->addAction("Paste");
+	connect(action_context_paste, SIGNAL(triggered()), this, SLOT(context_paste_action()));
+
+	drop_menu_ = new QMenu();
+	drop_menu_->setStyleSheet("QMenu { padding: 4px; } QMenu::indicator { width: 0px; height: 0px; }");
+	action_drop_copy = drop_menu_->addAction("Copy");
+	connect(action_drop_copy, SIGNAL(triggered()), this, SLOT(drop_copy_action()));
+	action_drop_move = drop_menu_->addAction("Move");
+	connect(action_drop_move, SIGNAL(triggered()), this, SLOT(drop_move_action()));
+
+	rl_item_left_ = new item_view {this, ui_->rl_item_left_tree, ui_->rl_item_left_list, ui_->rl_item_left_head_locator};
 	ui_->rl_item_left_tree->set_item_view(rl_item_left_);
 	ui_->rl_item_left_list->set_item_view(rl_item_left_);
-	rl_item_right_ = new item_view {ui_->rl_item_right_tree, ui_->rl_item_right_list, ui_->rl_item_right_head_locator, ui_->status_bar};
+	rl_item_right_ = new item_view {this, ui_->rl_item_right_tree, ui_->rl_item_right_list, ui_->rl_item_right_head_locator};
 	ui_->rl_item_right_tree->set_item_view(rl_item_right_);
 	ui_->rl_item_right_list->set_item_view(rl_item_right_);
 }
@@ -23,7 +41,33 @@ window::window(QWidget *parent) :
 window::~window() {
 	delete rl_item_left_;
 	delete rl_item_right_;
+	delete context_menu_;
+	delete drop_menu_;
 	delete ui_;
+}
+
+void window::context_copy_action() {
+	ui_->status_bar->showMessage(action_data1.append(" CONTEXT COPY"));
+}
+
+void window::context_cut_action() {
+	ui_->status_bar->showMessage(action_data1.append(" CONTEXT CUT"));
+}
+
+void window::context_paste_action() {
+	ui_->status_bar->showMessage(action_data1.append(" CONTEXT PASTE"));
+}
+
+void window::drop_copy_action() {
+	ui_->status_bar->showMessage(action_data2.join(":").append(" - COPY > ").append(action_data1));
+}
+
+void window::drop_move_action() {
+	ui_->status_bar->showMessage(action_data2.join(":").append(" - MOVE > ").append(action_data1));
+}
+
+Ui::window *window::ui() {
+	return ui_;
 }
 
 void window::on_rl_item_left_head_filter_clicked() {

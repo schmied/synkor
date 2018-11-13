@@ -7,19 +7,9 @@
 #include <QPushButton>
 #include <QStatusBar>
 
-
+class window;
 class list_view;
 class tree_view;
-
-static const std::map<std::string, QDir::Filters> FILTERS_TREE {
-	std::make_pair("", QDir::NoDotAndDotDot | QDir::Hidden),
-};
-
-/*
-static const std::map<std::string, QDir::Filters> FILTERS_LIST {
-	std::make_pair("", QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden),
-};
-*/
 
 static const auto FILTER_BASE_TREE = QDir::AllDirs | QDir::NoDotAndDotDot;
 static const auto FILTER_BASE_LIST = QDir::AllEntries | QDir::NoDotAndDotDot;
@@ -28,16 +18,17 @@ static const auto FILTER_ADD_HIDDEN = QDir::Hidden | QDir::System;
 class item_view {
 
 private:
+	window *window_;
 	list_view *list_;
 	tree_view *tree_;
 	QLineEdit *head_;
-	QStatusBar *status_bar_;
 	QFileSystemModel list_model_;
 	QFileSystemModel tree_model_;
 
 public:
-	item_view(tree_view*, list_view*, QLineEdit*, QStatusBar*);
+	item_view(window*, tree_view*, list_view*, QLineEdit*);
 
+	window* main_window();
 	list_view* list();
 	tree_view* tree();
 	QLineEdit* head();
@@ -50,10 +41,10 @@ public:
 
 	void toggleFilter();
 
+	void dropEvent(QDropEvent*, QAbstractItemView*);
 	static void dragEnterEvent(QDragEnterEvent*);
 	static void dragLeaveEvent(QDragLeaveEvent*, QAbstractItemView*);
-	static void dragMoveEvent(QDragMoveEvent*, QAbstractItemView*, QFileSystemModel*, QStatusBar*);
-	static void dropEvent(QDropEvent*, QAbstractItemView*);
+	void dragMoveEvent(QDragMoveEvent*, QAbstractItemView*, QFileSystemModel*, QStatusBar*);
 
 };
 

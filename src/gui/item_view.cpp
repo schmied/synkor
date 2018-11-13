@@ -8,13 +8,16 @@
 
 #include "list_view.hpp"
 #include "tree_view.hpp"
+#include "window.hpp"
 
-item_view::item_view(tree_view *tree_view, list_view *list_view, QLineEdit *head, QStatusBar *status_bar) {
+#include "ui_window.h"
 
+item_view::item_view(window *window, tree_view *tree_view, list_view *list_view, QLineEdit *head) {
+
+	window_ = window;
 	list_ = list_view;
 	tree_ = tree_view;
 	head_ = head;
-	status_bar_ = status_bar;
 
 	const auto root = QDir::drives().first().filePath();
 
@@ -39,6 +42,10 @@ item_view::item_view(tree_view *tree_view, list_view *list_view, QLineEdit *head
 	head_->setText(QDir::toNativeSeparators(root));
 }
 
+window *item_view::main_window() {
+	return window_;
+}
+
 list_view* item_view::list() {
 	return list_;
 }
@@ -52,7 +59,7 @@ QLineEdit* item_view::head() {
 }
 
 QStatusBar* item_view::status_bar() {
-	return status_bar_;
+	return window_->ui()->status_bar;
 }
 
 QFileSystemModel *item_view::list_model() {
@@ -77,30 +84,29 @@ void item_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QF
 	QString status {};
 	const auto mime = event->mimeData();
 	if (mime != nullptr && mime->hasUrls()) {
+		QList<QString> action_data2;
 		auto urls = mime->urls();
-		int count = 0;
 		for (const auto &url : urls) {
 			if (url.isLocalFile())
-				count++;
+				action_data2.push_back(url.toString());
 		}
-		if (count == 0)
-			return;
-		status.append("Copy / Move / Sync ");
-		status.append(std::to_string(count).c_str());
-		if (count == 1)
-			status.append(" item to ");
-		else
-			status.append(" items to ");
-		auto index = view->indexAt(event->pos());
-		if (index.isValid()) {
-			auto path = model->filePath(index);
-			if (model->isDir(index))
-				view->selectionModel()->select(index, QItemSelectionModel::Select);
-			else
-				index = model->parent(index);
-			status.append(model->filePath(index));
-		} else {
-			status.append("...");
+		window_->action_data2 = action_data2;
+		if (!window_->action_data2.empty()) {
+			auto index = view->indexAt(event->pos());
+			if (index.isValid()) {
+				auto path = model->filePath(index);
+				if (model->isDir(index))
+					view->selectionModel()->select(index, QItemSelectionModel::Select);
+				else
+					index = model->parent(index);
+				window_->action_data1 = model->filePath(index);
+			} else {
+				window_->action_data1.clear();
+			}
+			status.append("Copy / Move / Sync ");
+			status.append(window_->action_data2.join(" : "));
+			status.append(" to ");
+			status.append(window_->action_data1.isEmpty() ? "..." : window_->action_data1);
 		}
 	}
 	status_bar->showMessage(status);
@@ -109,16 +115,15 @@ void item_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QF
 }
 
 void item_view::dropEvent(QDropEvent *event, QAbstractItemView *view) {
-	QMenu *menu =new QMenu(view);
-	menu->addAction(new QAction("Copy", view));
-	menu->addAction(new QAction("Move", view));
-	menu->addAction(new QAction("Sync", view));
-	menu->popup(view->viewport()->mapToGlobal(event->pos()));
-
+	window_->drop_menu_->popup(view->viewport()->mapToGlobal(event->pos()));
 	event->acceptProposedAction();
 }
 
 void item_view::mousePressEventTree(QMouseEvent *event) {
+//	if (!(event->button() & Qt::MouseButton::LeftButton)) {
+//		event->ignore();
+//		return;
+//	}
 	tree_->selectionModel()->clearSelection();
 	head_->setText("");
 	auto index = tree_->indexAt(event->pos());
@@ -148,6 +153,10 @@ void item_view::mousePressEventTree(QMouseEvent *event) {
 }
 
 void item_view::mouseDoubleClickEventList(QMouseEvent *event) {
+	if (!(event->button() & Qt::MouseButton::LeftButton)) {
+		event->ignore();
+		return;
+	}
 	auto list_index = list_->indexAt(event->pos());
 	if (list_index.isValid()) {
 		const QString path {list_model_.filePath(list_index)};
@@ -169,17 +178,18 @@ void item_view::mouseDoubleClickEventList(QMouseEvent *event) {
 	event->accept();
 }
 
-
 void item_view::toggleFilter() {
 	auto filter_tree = FILTER_BASE_TREE;
 	auto filter_list = FILTER_BASE_LIST;
-	if (list_model_.filter() & QDir::Hidden) {
-		status_bar_->showMessage("Do not show hidden entries.");
+	if (list_model_.filter() & QDir::Hidden || tree_model_.filter() & QDir::Hidden) {
+		status_bar()->showMessage("Do not show hidden entries.");
 	} else {
 		filter_tree |= FILTER_ADD_HIDDEN;
 		filter_list |= FILTER_ADD_HIDDEN;
-		status_bar_->showMessage("Show hidden entries.");
+		status_bar()->showMessage("Show hidden entries.");
 	}
 	tree_model_.setFilter(filter_tree);
 	list_model_.setFilter(filter_list);
+	//tree_->update();
+	//list_->update();
 }

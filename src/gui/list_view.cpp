@@ -1,9 +1,9 @@
 
+#include <QMenu>
 #include <QMouseEvent>
 
 #include "list_view.hpp"
-
-#include "item_view.hpp"
+#include "window.hpp"
 
 list_view::list_view(QWidget *parent) : QListView(parent) {
 	setContextMenuPolicy(Qt::DefaultContextMenu);
@@ -22,23 +22,31 @@ void list_view::dragLeaveEvent(QDragLeaveEvent *event) {
 }
 
 void list_view::dragMoveEvent(QDragMoveEvent *event) {
-	item_view::dragMoveEvent(event, this, item_view_->list_model(), item_view_->status_bar());
+	item_view_->dragMoveEvent(event, this, item_view_->list_model(), item_view_->status_bar());
 }
 
 void list_view::dropEvent(QDropEvent *event) {
-	item_view::dropEvent(event, this);
+	item_view_->dropEvent(event, this);
 }
 
 void list_view::mousePressEvent(QMouseEvent *event) {
-	if (event->button() & Qt::MouseButton::LeftButton) {
-		QListView::mousePressEvent(event);
-		return;
-	}
-	if (event->button() & Qt::MouseButton::RightButton) {
-		event->accept();
-	}
+//	if (!(event->button() & Qt::MouseButton::LeftButton)) {
+//		event->ignore();
+//		return;
+//	}
+	QListView::mousePressEvent(event);
+	event->accept();;
 }
 
 void list_view::mouseDoubleClickEvent(QMouseEvent *event) {
 	item_view_->mouseDoubleClickEventList(event);
+}
+
+void list_view::contextMenuEvent(QContextMenuEvent *event) {
+	const auto index = item_view_->list()->indexAt(event->pos());
+	const auto path = item_view_->tree_model()->filePath(index);
+	const auto main_window = item_view_->main_window();
+	main_window->action_data1 = path;
+	main_window->context_menu_->popup(viewport()->mapToGlobal(event->pos()));
+	event->accept();
 }
