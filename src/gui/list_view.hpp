@@ -12,8 +12,6 @@ private:
 	item_view *item_view_;
 
 protected:
-	void dragEnterEvent(QDragEnterEvent*) override;
-	void dragLeaveEvent(QDragLeaveEvent*) override;
 	void dragMoveEvent(QDragMoveEvent*) override;
 	void dropEvent(QDropEvent*) override;
 	void mousePressEvent(QMouseEvent*) override;

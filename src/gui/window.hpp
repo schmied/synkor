@@ -43,8 +43,8 @@ public:
 	QMenu *context_menu_;
 	QMenu *drop_menu_;
 
-	QString action_data1;
-	QList<QString> action_data2;
+	QString action_dir_dst;
+	QList<QString> action_items_src;
 
 };
 

@@ -70,43 +70,30 @@ QFileSystemModel *item_view::tree_model() {
 	return &tree_model_;
 }
 
-void item_view::dragEnterEvent(QDragEnterEvent *event) {
-	event->acceptProposedAction();
-}
-
-void item_view::dragLeaveEvent(QDragLeaveEvent *event, QAbstractItemView *view) {
-	view->selectionModel()->clearSelection();
-	event->accept();
-}
-
 void item_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QFileSystemModel *model, QStatusBar *status_bar) {
-	view->selectionModel()->clearSelection();
+	window_->action_items_src.clear();
+	window_->action_dir_dst.clear();
 	QString status {};
 	const auto mime = event->mimeData();
 	if (mime != nullptr && mime->hasUrls()) {
-		QList<QString> action_data2;
 		auto urls = mime->urls();
 		for (const auto &url : urls) {
 			if (url.isLocalFile())
-				action_data2.push_back(url.toString());
+				window_->action_items_src.push_back(url.toString());
 		}
-		window_->action_data2 = action_data2;
-		if (!window_->action_data2.empty()) {
+		if (!window_->action_items_src.empty()) {
 			auto index = view->indexAt(event->pos());
 			if (index.isValid()) {
-				auto path = model->filePath(index);
-				if (model->isDir(index))
-					view->selectionModel()->select(index, QItemSelectionModel::Select);
-				else
+				if (!model->isDir(index))
 					index = model->parent(index);
-				window_->action_data1 = model->filePath(index);
+				window_->action_dir_dst = model->filePath(index);
 			} else {
-				window_->action_data1.clear();
+				window_->action_dir_dst.clear();
 			}
 			status.append("Copy / Move / Sync ");
-			status.append(window_->action_data2.join(" : "));
-			status.append(" to ");
-			status.append(window_->action_data1.isEmpty() ? "..." : window_->action_data1);
+			status.append(window_->action_items_src.join(" : "));
+			status.append(" -> ");
+			status.append(window_->action_dir_dst.isEmpty() ? "..." : window_->action_dir_dst);
 		}
 	}
 	status_bar->showMessage(status);
@@ -143,7 +130,6 @@ void item_view::mousePressEventTree(QMouseEvent *event) {
 			}
 		}
 
-	//	base_view_->list_model()->setRootPath(path);
 		list_->selectionModel()->clearSelection();
 		const auto list_index = list_model_.index(path);
 		if (list_index.isValid())
@@ -169,7 +155,7 @@ void item_view::mouseDoubleClickEventList(QMouseEvent *event) {
 				tree_index = tree_index.parent();
 			}
 
-			list_model_.setRootPath(path);
+			list_->selectionModel()->clearSelection();
 			list_->setRootIndex(list_model_.index(path));
 
 			head_->setText(QDir().toNativeSeparators(path));

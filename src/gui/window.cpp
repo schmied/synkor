@@ -47,23 +47,23 @@ window::~window() {
 }
 
 void window::context_copy_action() {
-	ui_->status_bar->showMessage(action_data1.append(" CONTEXT COPY"));
+	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT COPY"));
 }
 
 void window::context_cut_action() {
-	ui_->status_bar->showMessage(action_data1.append(" CONTEXT CUT"));
+	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT CUT"));
 }
 
 void window::context_paste_action() {
-	ui_->status_bar->showMessage(action_data1.append(" CONTEXT PASTE"));
+	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT PASTE"));
 }
 
 void window::drop_copy_action() {
-	ui_->status_bar->showMessage(action_data2.join(":").append(" - COPY > ").append(action_data1));
+	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" -COPY-> ").append(action_dir_dst));
 }
 
 void window::drop_move_action() {
-	ui_->status_bar->showMessage(action_data2.join(":").append(" - MOVE > ").append(action_data1));
+	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" -MOVE-> ").append(action_dir_dst));
 }
 
 Ui::window *window::ui() {
