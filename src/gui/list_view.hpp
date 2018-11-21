@@ -14,6 +14,8 @@
  * THIS SOFTWARE.
  */
 
+#pragma once
+
 #ifndef LIST_VIEW_HPP
 #define LIST_VIEW_HPP
 

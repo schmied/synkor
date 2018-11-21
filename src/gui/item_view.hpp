@@ -14,6 +14,8 @@
  * THIS SOFTWARE.
  */
 
+#pragma once
+
 #ifndef BASE_VIEW_HPP
 #define BASE_VIEW_HPP
 

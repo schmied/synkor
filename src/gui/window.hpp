@@ -14,6 +14,8 @@
  * THIS SOFTWARE.
  */
 
+#pragma once
+
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 

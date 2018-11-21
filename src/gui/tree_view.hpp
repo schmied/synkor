@@ -14,6 +14,8 @@
  * THIS SOFTWARE.
  */
 
+#pragma once
+
 #ifndef TREE_VIEW_HPP
 #define TREE_VIEW_HPP
 

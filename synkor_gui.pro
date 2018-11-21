@@ -15,13 +15,13 @@ DEFINES += SODIUM_STATIC
 QMAKE_CXXFLAGS += /std:c++17
 
 SOURCES += \
-    src/gui/main.cpp \
     src/gui/window.cpp \
     src/gui/tree_view.cpp \
     src/gui/list_view.cpp \
     src/gui/item_view.cpp \
     src/filesystem.cpp \
-    contrib/json11/json11.cpp
+    contrib/json11/json11.cpp \
+    src/gui/gui_main.cpp
 
 HEADERS += \
     src/gui/window.hpp \
