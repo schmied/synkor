@@ -43,13 +43,11 @@ item_view::item_view(window *window, tree_view *tree_view, list_view *list_view,
 	tree_model_.setRootPath(root);
 	tree_->setRootIsDecorated(false);
 	tree_->setIndentation(10);
-//	tree->setColumnHidden(2, true);
-//	tree->setColumnHidden(3, true);
 	tree_->setModel(&tree_model_);
 
 	list_model_.setReadOnly(true);
 	list_model_.setFilter(FILTER_BASE_LIST);
-	tree_model_.iconProvider()->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
+	list_model_.iconProvider()->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
 	list_model_.sort(0);
 	list_model_.setRootPath(root);
 	list_->setModel(&list_model_);

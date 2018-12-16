@@ -30,6 +30,7 @@ private:
 	item_view *item_view_;
 
 protected:
+	void showEvent(QShowEvent*) override;
 	void dragMoveEvent(QDragMoveEvent*) override;
 	void dropEvent(QDropEvent*) override;
 	void mousePressEvent(QMouseEvent*) override;

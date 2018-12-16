@@ -38,6 +38,9 @@ private:
 	QAction *action_context_copy;
 	QAction *action_context_cut;
 	QAction *action_context_paste;
+	QAction *action_context_delete;
+	QAction *action_context_archive_create;
+	QAction *action_context_archive_extract;
 	QAction *action_drop_copy;
 	QAction *action_drop_move;
 
@@ -47,6 +50,9 @@ private slots:
 	void context_copy_action();
 	void context_cut_action();
 	void context_paste_action();
+	void context_delete_action();
+	void context_archive_create();
+	void context_archive_extract();
 	void drop_copy_action();
 	void drop_move_action();
 
@@ -59,6 +65,7 @@ public:
 	Ui::window *ui();
 
 	QMenu *context_menu_;
+	QMenu *context_menu_archive_;
 	QMenu *drop_menu_;
 
 	QString action_dir_dst;

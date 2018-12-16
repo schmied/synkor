@@ -21,16 +21,18 @@
 #include "window.hpp"
 
 tree_view::tree_view(QWidget *parent) : QTreeView(parent) {
-//	setColumnHidden(1, true);
-//	setColumnHidden(2, true);
-//	setColumnHidden(3, true);
-
 //	setContextMenuPolicy(Qt::CustomContextMenu);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
 void tree_view::set_item_view(item_view *item_view) {
 	item_view_ = item_view;
+}
+
+void tree_view::showEvent(QShowEvent *event) {
+	QWidget::showEvent(event);
+	for (int i = 1; i < model()->columnCount(); ++i)
+		hideColumn(i);
 }
 
 void tree_view::dragMoveEvent(QDragMoveEvent *event) {

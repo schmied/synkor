@@ -14,6 +14,8 @@ DEFINES += SODIUM_STATIC
 
 QMAKE_CXXFLAGS += /std:c++17
 
+INCLUDEPATH += contrib
+
 SOURCES += \
     src/gui/window.cpp \
     src/gui/tree_view.cpp \
@@ -21,7 +23,11 @@ SOURCES += \
     src/gui/item_view.cpp \
     src/filesystem.cpp \
     contrib/json11/json11.cpp \
-    src/gui/gui_main.cpp
+    src/gui/gui_main.cpp \
+    src/log.cpp \
+    src/base.cpp \
+    src/config.cpp \
+    src/server.cpp
 
 HEADERS += \
     src/gui/window.hpp \
@@ -30,7 +36,11 @@ HEADERS += \
     src/gui/item_view.hpp \
     src/global.hpp \
     src/filesystem.hpp \
-    contrib/json11/json11.hpp
+    contrib/json11/json11.hpp \
+    src/log.hpp \
+    src/base.hpp \
+    src/config.hpp \
+    src/server.hpp
 
 FORMS += \
     src/gui/window.ui
