@@ -41,6 +41,8 @@ public:
 	static void save_string(const stdfs::path&, const std::string&);
 	static void save_json(const stdfs::path&, const json11::Json);
 
+	static void thread_read(const std::vector<stdfs::path>);
+	static void thread_write(const stdfs::path);
 };
 
 }

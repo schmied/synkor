@@ -67,7 +67,7 @@ void thread_net(asio::ip::tcp::socket socket) {
 //	asio::ip::tcp::socket *socket = server->socket();
 	for (;;) {
 		std::error_code error;
-		size_t length = socket.read_some(asio::buffer(buf_net), error);
+		const auto length = socket.read_some(asio::buffer(buf_net), error);
 		if (error == asio::error::eof)
 			break; // Connection closed cleanly by peer.
 		else if (error)

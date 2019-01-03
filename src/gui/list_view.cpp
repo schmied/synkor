@@ -53,7 +53,7 @@ void list_view::contextMenuEvent(QContextMenuEvent *event) {
 	const auto main_window = item_view_->main_window();
 	main_window->action_items_src.clear();
 	for (const auto &index : selectedIndexes())
-		main_window->action_items_src.push_back(item_view_->tree_model()->filePath(index));
+		main_window->action_items_src.push_back(item_view_->tree_model()->filePath(index).toStdString());
 	main_window->context_menu_->popup(viewport()->mapToGlobal(event->pos()));
 	event->accept();
 }

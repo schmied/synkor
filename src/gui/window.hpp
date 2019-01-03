@@ -21,6 +21,8 @@
 
 #include <QMainWindow>
 
+#include "../global.hpp"
+
 #include "item_view.hpp"
 
 namespace Ui {
@@ -68,9 +70,13 @@ public:
 	QMenu *context_menu_archive_;
 	QMenu *drop_menu_;
 
-	QString action_dir_dst;
-	QList<QString> action_items_src;
+//	QString action_dir_dst;
+//	QList<QString> action_items_src;
+	stdfs::path action_dir_dst;
+	std::vector<stdfs::path> action_items_src;
 
+	static QString join(const std::vector<stdfs::path>&);
+	static QString join(const std::vector<stdfs::path>&, const stdfs::path&, const char*);
 };
 
 #endif

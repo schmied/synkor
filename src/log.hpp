@@ -33,7 +33,7 @@ class log {
 private:
 
 public:
-	static void exception(const std::shared_ptr<spdlog::logger>, const std::exception&, size_t level = 0);
+	static void exception(const std::shared_ptr<spdlog::logger>, const std::exception&, std::size_t level = 0);
 	static void usage();
 
 };

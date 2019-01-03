@@ -17,8 +17,10 @@
 #include <QMenu>
 
 #include "../../contrib/spdlog/spdlog.h"
-#include "../../contrib/spdlog/sinks/basic_file_sink.h"
+//#include "../../contrib/spdlog/sinks/basic_file_sink.h"
+#include "../../contrib/spdlog/sinks/stdout_sinks.h"
 
+#include "../filesystem.hpp"
 #include "../global.hpp"
 
 #include "window.hpp"
@@ -28,7 +30,8 @@
 
 #include "ui_window.h"
 
-static const auto logger = spdlog::basic_logger_mt(stdfs::path(__FILE__).stem().string(), "synkor.log");
+//static const auto logger = spdlog::basic_logger_mt(stdfs::path(__FILE__).stem().string(), "synkor.log");
+static const auto logger = spdlog::stdout_logger_st(stdfs::path(__FILE__).stem().string());
 
 window::window(QWidget *parent) :
 	QMainWindow(parent),
@@ -79,129 +82,41 @@ window::~window() {
 }
 
 void window::context_copy_action() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT COPY"));
+	ui_->status_bar->showMessage(join(action_items_src).append(" CONTEXT COPY"));
 }
 
 void window::context_cut_action() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT CUT"));
+	ui_->status_bar->showMessage(join(action_items_src).append(" CONTEXT CUT"));
 }
 
 void window::context_paste_action() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT PASTE"));
+	ui_->status_bar->showMessage(join(action_items_src).append(" CONTEXT PASTE"));
 }
 
 void window::context_delete_action() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT DELETE"));
+	ui_->status_bar->showMessage(join(action_items_src).append(" CONTEXT DELETE"));
 }
 
 void window::context_archive_create() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT ARCHIVE CREATE"));
+	ui_->status_bar->showMessage(join(action_items_src).append(" CONTEXT ARCHIVE CREATE"));
 }
 
 void window::context_archive_extract() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" CONTEXT ARCHIVE EXTRACT"));
-}
-
-#include <fstream>
-#include <thread>
-#include <contrib/asio/asio.hpp>
-#include <mutex>
-#include <algorithm>
-#include <cstdlib>
-#include <filesystem>
-#include <chrono>
-
-//const std::size_t bufsize = 1048576;
-static const std::size_t bufsize = 16777216;
-static const std::size_t bufsize_fstream = 262144;
-//const std::size_t bufsize = 8192;
-static asio::streambuf sb {bufsize};
-static std::mutex mtx;
-
-static void thread_read(const std::string action_items_src) {
-	char buf[bufsize_fstream];
-	std::ios_base::sync_with_stdio(false);
-	bool run = true;
-	const std::filesystem::path path {action_items_src.substr(8)}; // remove 'file:///'
-	std::ifstream ifs;
-	ifs.rdbuf()->pubsetbuf(buf, bufsize);
-	ifs.open(path, std::ios_base::binary | std::ios_base::in);
-	while (run) {
-		while (ifs) {
-			logger->info("read lock 1");
-			mtx.lock();
-			logger->info("read lock 2");
-			const std::size_t read_size_max = std::min(sb.max_size() - sb.size(), bufsize);
-			logger->info("read size max {:d}", read_size_max);
-			auto buf_dst = sb.prepare(read_size_max);
-			logger->info("read {:d}", buf_dst.size());
-			ifs.read((char*) buf_dst.data(), read_size_max);
-			const std::size_t read_size = (std::size_t) ifs.gcount();
-			logger->info("read read {:d}", read_size);
-			sb.commit(read_size);
-			mtx.unlock();
-			logger->info("read unlock");
-
-			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(1ms);
-		}
-		run = false;
-	}
-	logger->info("reader before");
-	ifs.close();
-	logger->info("reader after");
-}
-
-static void thread_write(QString action_dir_dst) {
-	char buf[bufsize_fstream];
-	std::ios_base::sync_with_stdio(false);
-	bool run = true;
-	int i = 0;
-	std::ofstream ofs;
-	ofs.rdbuf()->pubsetbuf(buf, bufsize);
-	ofs.open(action_dir_dst.append("/blaaaa.txt").toStdString().c_str(), std::ios_base::binary | std::ios_base::out);
-	while (run) {
-		logger->info("write lock 1");
-		mtx.lock();
-		logger->info("write lock 2");
-		const auto buf_src = sb.data();
-		logger->info("write buf src {:d}", buf_src.size());
-		const std::size_t write_size = std::min(buf_src.size(), bufsize);
-		logger->info("write size {:d}", buf_src.size());
-		if (write_size > 0) {
-			ofs.write((const char*) buf_src.data(), write_size);
-			//ofs.flush();
-			sb.consume(write_size);
-		} else {
-			i++;
-		}
-		mtx.unlock();
-		logger->info("write unlock");
-
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(1ms);
-
-		if (i > 10)
-			run = false;
-	}
-	logger->info("write close before");
-	ofs.close();
-	logger->info("write close after");
+	ui_->status_bar->showMessage(join(action_items_src).append(" CONTEXT ARCHIVE EXTRACT"));
 }
 
 void window::drop_copy_action() {
 
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" -COPY-> ").append(action_dir_dst));
+	ui_->status_bar->showMessage(join(action_items_src, action_dir_dst, "COPY"));
 
-	std::thread thr_write {thread_write, action_dir_dst};
-	std::thread thr_read {thread_read, action_items_src.first().toStdString()};
+	std::thread thr_write {synkor::filesystem::thread_write, action_dir_dst};
+	std::thread thr_read {synkor::filesystem::thread_read, action_items_src};
 	thr_write.detach();
 	thr_read.detach();
-
 }
 
 void window::drop_move_action() {
-	ui_->status_bar->showMessage(action_items_src.join(" : ").append(" -MOVE-> ").append(action_dir_dst));
+	ui_->status_bar->showMessage(join(action_items_src, action_dir_dst, "MOVE"));
 }
 
 Ui::window *window::ui() {
@@ -217,4 +132,30 @@ void window::on_rl_item_right_head_filter_clicked() {
 	rl_item_right_->list()->baseSize().setWidth(100);
 	rl_item_right_->list()->setMaximumWidth(100);
 	rl_item_right_->list()->setMinimumWidth(100);
+}
+
+QString window::join(const std::vector<stdfs::path> &paths) {
+	QString s;
+	if (paths.empty()) {
+		s.append("...");
+	} else {
+		for (const auto &p : paths) {
+			if (!s.isEmpty())
+				s.append(" : ");
+			s.append(QString::fromStdString(p.string()));
+		}
+	}
+	return s;
+}
+
+QString window::join(const std::vector<stdfs::path> &paths, const stdfs::path &path, const char *what) {
+	QString s = join(paths);
+	s.append(" ");
+	if (what != nullptr)
+		s.append(what);
+	else
+		s.append("->");
+	s.append(" ");
+	s.append(QString::fromStdString(path.string()));
+	return s;
 }

@@ -92,21 +92,21 @@ void item_view::dragMoveEvent(QDragMoveEvent *event, QAbstractItemView *view, QF
 		auto urls = mime->urls();
 		for (const auto &url : urls) {
 			if (url.isLocalFile())
-				window_->action_items_src.push_back(url.toString());
+				window_->action_items_src.push_back(url.toString().toStdString());
 		}
 		if (!window_->action_items_src.empty()) {
 			auto index = view->indexAt(event->pos());
 			if (index.isValid()) {
 				if (!model->isDir(index))
 					index = model->parent(index);
-				window_->action_dir_dst = model->filePath(index);
+				window_->action_dir_dst = model->filePath(index).toStdString();
 			} else {
 				window_->action_dir_dst.clear();
 			}
 			status.append("Copy / Move / Sync ");
-			status.append(window_->action_items_src.join(" : "));
+			status.append(window::join(window_->action_items_src));
 			status.append(" -> ");
-			status.append(window_->action_dir_dst.isEmpty() ? "..." : window_->action_dir_dst);
+			status.append(window_->action_dir_dst.empty() ? "..." : QString::fromStdString(window_->action_dir_dst.string()));
 		}
 	}
 	status_bar->showMessage(status);
