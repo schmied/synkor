@@ -10,6 +10,11 @@ DEFINES += _WIN32_WINNT=0x0601
 
 QMAKE_CXXFLAGS += /std:c++17
 
+INCLUDEPATH += \
+    . \
+	contrib \
+	contrib/asio
+
 SOURCES += \
     contrib/json11/json11.cpp \
 	src/config.cpp \
