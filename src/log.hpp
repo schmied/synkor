@@ -23,8 +23,8 @@
 
 #include "../contrib/spdlog/spdlog.h"
 
-#define THROW_EXCEPTION(WHAT) throw std::runtime_error {__func__ + std::string("() ") + WHAT};
-#define THROW_EXCEPTION_NESTED(WHAT) std::throw_with_nested(std::runtime_error {__func__ + std::string("() ") + WHAT});
+#define THROW_EXCEPTION(WHAT) throw std::runtime_error {__func__ + std::string("() ") + WHAT}
+#define THROW_EXCEPTION_NESTED(WHAT) std::throw_with_nested(std::runtime_error {__func__ + std::string("() ") + WHAT})
 
 namespace synkor {
 

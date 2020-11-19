@@ -38,29 +38,29 @@ static const std::string JSON_KEY_PEERNAME {"peername"};
 static const std::string JSON_KEY_LISTEN_PORT {"listen_port"};
 
 const stdfs::path synkor::config::_path_file_config(const stdfs::path &dir_base) {
-	return stdfs::path {dir_base.string() + "/" + FILE_CONFIG.string()}.lexically_normal();
+    return stdfs::path {dir_base.string() + "/" + FILE_CONFIG.string()}.lexically_normal();
 }
 
 const std::string synkor::config::_peername(const stdfs::path &dir_base, const std::string &peername) {
-	const auto file_config = _path_file_config(dir_base);
-	const auto is_file_config = filesystem::is_file_readable(file_config);
-	if (!is_file_config && peername.empty())
-			THROW_EXCEPTION("no peer name defined, cannot initialize directory: " + dir_base.string());
-	if (is_file_config && !peername.empty())
-			THROW_EXCEPTION("directory already initialized: " + dir_base.string());
-	if (is_file_config) {
-		const auto config_json = filesystem::load_json(file_config);
-		const auto peername_json = config_json[JSON_KEY_PEERNAME].string_value();
-		if (peername_json.empty())
-			THROW_EXCEPTION("no peer name defined in config file: " + file_config.string());
-		if (peername_json != base::valid_peername(peername_json))
-			THROW_EXCEPTION("peer name defined in config file not valid.");
-		return base::valid_peername(peername_json);
-	}
-	const auto valid_peername = base::valid_peername(peername);
-	filesystem::save_string(file_config, "{ \"" + JSON_KEY_PEERNAME + "\": \"" + valid_peername + "\" }");
-	logger->info("create config file: {}", file_config.string());
-	return valid_peername;
+    const auto file_config = _path_file_config(dir_base);
+    const auto is_file_config = filesystem::is_file_readable(file_config);
+    if (!is_file_config && peername.empty())
+            THROW_EXCEPTION("no peer name defined, cannot initialize directory: " + dir_base.string());
+    if (is_file_config && !peername.empty())
+            THROW_EXCEPTION("directory already initialized: " + dir_base.string());
+    if (is_file_config) {
+        const auto config_json = filesystem::load_json(file_config);
+        const auto peername_json = config_json[JSON_KEY_PEERNAME].string_value();
+        if (peername_json.empty())
+            THROW_EXCEPTION("no peer name defined in config file: " + file_config.string());
+        if (peername_json != base::valid_peername(peername_json))
+            THROW_EXCEPTION("peer name defined in config file not valid.");
+        return base::valid_peername(peername_json);
+    }
+    const auto valid_peername = base::valid_peername(peername);
+    filesystem::save_string(file_config, "{ \"" + JSON_KEY_PEERNAME + "\": \"" + valid_peername + "\" }");
+    logger->info("create config file: {}", file_config.string());
+    return valid_peername;
 }
 
 /*
@@ -68,13 +68,13 @@ const std::string synkor::config::_peername(const stdfs::path &dir_base, const s
  */
 
 synkor::config::config(const stdfs::path &dir_base, const std::string &peername) : _base(dir_base, _peername(dir_base, peername)) {
-	const auto file_config = _path_file_config(_base.dir_base());
-	const auto config_json = filesystem::load_json(file_config);
-	logger->info("load config file: {}", file_config.string());
-	_listen_port = config_json[JSON_KEY_LISTEN_PORT].int_value();
-	logger->info("listen port: {}", _listen_port);
+    const auto file_config = _path_file_config(_base.dir_base());
+    const auto config_json = filesystem::load_json(file_config);
+    logger->info("load config file: {}", file_config.string());
+    _listen_port = config_json[JSON_KEY_LISTEN_PORT].int_value();
+    logger->info("listen port: {}", _listen_port);
 }
 
 int synkor::config::listen_port() const {
-	return _listen_port;
+    return _listen_port;
 }
